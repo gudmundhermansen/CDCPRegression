@@ -1,0 +1,18 @@
+Package: CDCPRegression
+Title: Confidence Distribution for Change Point in Regression Models
+Version: 0.0.9.0
+Authors@R: 
+    person(given = "Gudmund",
+           family = "Hermansen",
+           role = c("aut", "cre"),
+           email = "gudmund.hermansen@gmail.com",
+           comment = c(ORCID = "YOUR-ORCID-ID"))
+Description: Implementation of the confidence distribution method for change point and regime
+    shifts from Cunen, Hermansen \& Hjort (2018) for regression models and panel data.
+License: `use_gpl3_license()`
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+Imports:
+	data.table (>= 1.12.8)
