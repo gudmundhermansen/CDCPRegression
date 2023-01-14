@@ -265,6 +265,34 @@ cdcp.regression.simple.function <- function(data, model, index_val, boot = 100, 
   return(list(cc_set = tau_cc_set, cc_set_half = tau_cc_set_half, index_val = index_val_sub, u = u))
 }
 
+
+cdcp.regression.check <- function(cc) {
+  
+  if (!all(c("cc_set", "cc_set_half", "index_val", "u") %in% attributes(cc)$names)) {
+    stop("ERROR: Provide a proper list of cc values, it must contain cc_set, cc_set_half, index_val and u. \n")
+  }
+  
+  if (!(is.numeric(cc$cc_set) & min(dim(cc$cc_set)) > 0 & length(dim(cc$cc_set)) == 2)) {
+    stop("ERROR: cc_set must be an numeric matrix \n")
+  }
+  
+  if (!(is.numeric(cc$cc_set_half) & min(dim(cc$cc_set_half)) > 0 & length(dim(cc$cc_set_half)) == 2)) {
+    stop("ERROR: cc_set_half must be an numeric matrix \n")
+  }
+  
+  if (!(is.numeric(cc$index_val) & length(cc$index_val) == dim(cc$cc_set)[1])) {
+    stop("ERROR: index_val must be an numeric vector with length equal the number of rows as cc_set \n")
+  }
+
+  if (!(is.numeric(cc$u) & length(cc$u) == dim(cc$cc_set)[2])) {
+    stop("ERROR: u must be an numeric vector with length equal the number of columns as cc_set \n")
+  }
+  
+}
+
+
+
+
 #' Confidence Distribution for the Location of the Change Point
 #'
 #' `cdcp.regression(...)` compute a bootstrap for the change point
@@ -280,9 +308,10 @@ cdcp.regression.simple.function <- function(data, model, index_val, boot = 100, 
 #' A list of estimated parameters, the maximised log-likelihood, aic, deviance and residuales...
 #' An object from `cdcp.regression.estimation(...)` is a list containing the following components:
 #' \describe{
-#'   \item{ln_max}{First item}
-#'   \item{aic}{Second item}
-#'   \item{Dn}{ddd}
+#'   \item{cc_set}{First item}
+#'   \item{cc_set_half}{Second item}
+#'   \item{index_val}{ddd}
+#'   \item{u}{ddd}
 #' }
 #' \itemize{
 #'  \item{"parameter 1"}{Stuff}
@@ -293,20 +322,26 @@ cdcp.regression.simple.function <- function(data, model, index_val, boot = 100, 
 #' @export
 cdcp.regression <-  function(data, model, index_val, boot = 100, index_val_sub = NULL, u = seq(0, 1, length.out = 100), boot_type = c("gaussian", "independent", "group")) {
 
-  if (!all(c("y", "X", "Z", "index", "group") %in% attributes(data)$names)) {
-    stop("ERROR: data is not a proper cdcp regression data object. \n")
-  }
-
+  cdcp.regression.data.check.data(data)
+  
+  cdcp.regression.estimate.check.model(model)
+  
   if (!all(index_val %in% unique(data$index))) {
     stop("ERROR: Values in index_val are not found in data index.\n")
   }
 
-  if (!is.null(index_val_sub) & !all(index_val_sub %in% index_val)) {
-    stop("ERROR: index_val_sub is not a subset of index_val.\n")
+  if (!is.null(index_val_sub)) {
+    if (!all(index_val_sub %in% index_val)) {
+      stop("ERROR: index_val_sub is not a subset of index_val.\n")
+    }
   }
-
-  if (is.null(index_val_sub)) {
-    cat("WARNING: It is often demanding to run bootstrap for all indexes. If possible, use index_val_sub to specify a subset of indexes.\n")
+  
+  # if (is.null(index_val_sub)) {
+  #   cat("WARNING: It is often demanding to run bootstrap for all indexes. If possible, use index_val_sub to specify a subset of indexes.\n")
+  # }
+  
+  if (!(is.numeric(boot) & (round(boot) - boot) == 0 & boot > 0)) {
+    stop("ERROR: boot must be a positive integer. \n")
   }
 
   if (!is.numeric(u) | min(u) < 0 | min(u) > 1) {
@@ -320,6 +355,53 @@ cdcp.regression <-  function(data, model, index_val, boot = 100, index_val_sub =
   return(cdcp.regression.simple(data, model, index_val, boot, index_val_sub, u, boot_type))
 }
 
+
+
+
+
+#' Plot ... Confidence Distribution for the Location of the Change Point
+#'
+#' `cdcp.regression(...)` compute a bootstrap for the change point
+#'
+#' @param data A data object/list that specify the structure of the model created by the `cdcp.regression.data(...)`.
+#' @param model The estimated model object from `cdcp.regression.estimation(...)`.
+#' @param index_val A consecutive sequence of indexes representing the locations for a potential change point.
+#' @param boot The number of bootstrap samples.
+#' @param index_val_sub A subset of `index_val` used to speed up the calculations.
+#' @param u The resolution for the probability...
+#' @param boot_type The method used to sample residuales for the bootstrap `= "group"` ...
+#' @return A list of estimated parameters, the maximised log-likelihood, aic, deviance and residuales.
+#' A list of estimated parameters, the maximised log-likelihood, aic, deviance and residuales...
+#' An object from `cdcp.regression.estimation(...)` is a list containing the following components:
+#' \describe{
+#'   \item{cc_set}{First item}
+#'   \item{cc_set_half}{Second item}
+#'   \item{index_val}{ddd}
+#'   \item{u}{ddd}
+#' }
+#' \itemize{
+#'  \item{"parameter 1"}{Stuff}
+#'  \item{}{Stuff}
+#' }
+#'
+#' @references Cunen, C., Hermansen, G., & Hjort, N. L. (2018). Confidence distributions for change-points and regime shifts. Journal of Statistical Planning and Inference, 195, 14-34.
+#' @export
+cdcp.regression.plot <- function(cc, half_correction = TRUE) {
+  cdcp.regression.check(cc)
+  
+  if (!is.logical(half_correction)) {
+    stop("ERROR: half_correction must be logical.\n")
+  }
+  
+  plot_cc_set <- cc$cc_set
+
+  if (half_correction) {
+    plot_cc_set <- cc$cc_set_half
+  }
+  
+  matplot(x = cc$index_val, y = plot_cc_set, pch = 21, col = "black", bg = "grey70", xlab = "", ylab = "")
+  title(ylab = "Confidence Sets", xlab = "index", line = 2.5)
+}
 
 
 

@@ -16,13 +16,24 @@ A list of estimated parameters, the maximised log-likelihood, aic, deviance and 
 A list of estimated parameters, the maximised log-likelihood, aic, deviance and residuales...
 An object from cdcp.regression.estimation(...) is a list containing the following components:
 \describe{
-\item{ln_max}{First item}
-\item{aic}{Second item}
-\item{Dn}{ddd}
-}
-\itemize{
-\item{"parameter 1"}{Stuff}
-\item{}{Stuff}
+\item{ln_max}{maximised log-likelihood for each potential split in index_val}
+\item{aic}{Akaike Information Criterion (AIC) for each potential split in index_val}
+\item{Dn}{deviance for each potential split in index_val}
+\item{beta}{estimated beta (left and right) for the optimal change point}
+\item{betaL}{estimated beta to the left of the optimal change point}
+\item{betaR}{estimated beta to the right of the optimal change point}
+\item{tau}{optimal chage point}
+\item{gamma}{estimated gamma parameter}
+\item{dummy}{estimated dummy paramters}
+\item{mu}{estimated expecation}
+\item{sigma}{estimated sigma}
+\item{sigma_beta}{estimated sigma for estimated beta}
+\item{sigma_betaL}{estimated sigma for estimated beta to the left for optimal change point}
+\item{sigma_betaR}{estimated sigma for estimated beta to the right for optimal change point}
+\item{sigma_gamma}{estimated sigma for estimated gamma}
+\item{sigma_dummy}{estimated sigma for estimated dummy paramters}
+\item{res}{residuales}
+\item{index_val}{same as index_val argument}
 }
 }
 \description{
@@ -30,6 +41,24 @@ This function estimate the parameters, including the location of the change poin
 for the specified model. The model is specified through a data object/list, which
 should be created using the cdcp.regression.data(...) function.
 }
+\examples{
+
+# Example 1: One individual 
+n <- 100
+x <- 1:n
+X <- cbind(1, x)
+y <- 3*(x <= 50) + rnorm(n)
+data <- cdcp.regression.data(y = y, X = X, index = x, group = rep(1, n))
+index_val <- cdcp.regression.data.find.index.val(data)$index_val
+fit <- cdcp.regression.estimate(data, index_val)
+
+# Example 2: 
+data <- cdcp.regression.data.sim()$data
+index_val <- cdcp.regression.data.find.index.val(data)$index_val
+fit <- cdcp.regression.estimate(data, index_val)
+}
 \references{
+Hermansen, G., Knutsen, Carl Henrik & Nygaard, Haavard Mokleiv. (2021). Characterizing and assessing temporal heterogeneity: Introducing a change point framework, with applications on the study of democratization, Political Analysis, 29, 485-504
+
 Cunen, C., Hermansen, G., & Hjort, N. L. (2018). Confidence distributions for change-points and regime shifts. Journal of Statistical Planning and Inference, 195, 14-34.
 }

@@ -1,11 +1,23 @@
-# Title: Estimation
+# Title: Confidence Distribution for Change Point for Panel Regression - Estimation 
 #
-# Summary:
+# Summary: The main functions used for estimation of parameters for the CDCPRegression package. Some 
+# clever tricks are needed to make the estimation efficient for large-ish data and high number of 
+# parameters. 
 #
 # TODO:
-# 1) Test for index
-# 2) Use similar method as for the CC and CS simulation to speed up calculattions
-# 3) Tests!
+# 1) Tests.
+# 2) Test of indexes
+# 2) Use similar method as for the CC and CS simulation to speed up calculations
+
+cdcp.regression.estimate.check.model <- function(model) {
+  if (!all(c("ln_max", "aic", "Dn", "beta", "betaL", "betaR", 
+             "tau", "gamma", "dummy", "mu", 
+             "sigma", "sigma_beta", "sigma_betaL", "sigma_betaLR", "sigma_gamma", "sigma_dummy", 
+             "res", "index_val") %in% attributes(model)$names)) {
+    stop("ERROR: data is not a proper cdcp regression data object. \n")
+  }
+}
+
 
 cdcp.regression.estimate.function <- function(data, index_val = NULL) {
 
@@ -134,28 +146,54 @@ cdcp.regression.estimate.function <- function(data, index_val = NULL) {
 
 }
 
-#' Estimating the parameters in the model
+#' Estimating parameters for the Panale Regression Model with a Change Point
 #'
 #' This function estimate the parameters, including the location of the change point,
-#' for the specified model. The model is specified through a data object/list, which
-#' should be created using the cdcp.regression.data(...) function.
+#' for the model specified by `cdcp.regression.data(...)`.
 #'
-#' @param data A data object/list that specify the structure of the model created by the
-#' @param index_val Vector of indexes representing the locations for a potential change point
+#' @param data output list of data from `cdcp.regression.data(...)`.
+#' @param index_val vector of indexes for the locations for a potential change points. 
 #' @return A list of estimated parameters, the maximised log-likelihood, aic, deviance and residuales.
 #' A list of estimated parameters, the maximised log-likelihood, aic, deviance and residuales...
 #' An object from cdcp.regression.estimation(...) is a list containing the following components:
 #' \describe{
-#'   \item{ln_max}{First item}
-#'   \item{aic}{Second item}
-#'   \item{Dn}{ddd}
-#' }
-#' \itemize{
-#'  \item{"parameter 1"}{Stuff}
-#'  \item{}{Stuff}
+#'   \item{ln_max}{maximised log-likelihood for each potential split in index_val}
+#'   \item{aic}{Akaike Information Criterion (AIC) for each potential split in index_val}
+#'   \item{Dn}{deviance for each potential split in index_val}
+#'   \item{beta}{estimated beta (left and right) for the optimal change point}
+#'   \item{betaL}{estimated beta to the left of the optimal change point}
+#'   \item{betaR}{estimated beta to the right of the optimal change point}
+#'   \item{tau}{optimal chage point}
+#'   \item{gamma}{estimated gamma parameter}
+#'   \item{dummy}{estimated dummy paramters}
+#'   \item{mu}{estimated expecation}
+#'   \item{sigma}{estimated sigma}
+#'   \item{sigma_beta}{estimated sigma for estimated beta}
+#'   \item{sigma_betaL}{estimated sigma for estimated beta to the left for optimal change point}
+#'   \item{sigma_betaR}{estimated sigma for estimated beta to the right for optimal change point}
+#'   \item{sigma_gamma}{estimated sigma for estimated gamma}
+#'   \item{sigma_dummy}{estimated sigma for estimated dummy paramters}
+#'   \item{res}{residuales}
+#'   \item{index_val}{same as index_val argument}
 #' }
 #'
+#' @references Hermansen, G., Knutsen, Carl Henrik & Nygaard, Haavard Mokleiv. (2021). Characterizing and assessing temporal heterogeneity: Introducing a change point framework, with applications on the study of democratization, Political Analysis, 29, 485-504
 #' @references Cunen, C., Hermansen, G., & Hjort, N. L. (2018). Confidence distributions for change-points and regime shifts. Journal of Statistical Planning and Inference, 195, 14-34.
+#' @examples
+#' 
+#' # Example 1: One individual 
+#' n <- 100
+#' x <- 1:n
+#' X <- cbind(1, x)
+#' y <- 3*(x <= 50) + rnorm(n)
+#' data <- cdcp.regression.data(y = y, X = X, index = x, group = rep(1, n))
+#' index_val <- cdcp.regression.data.find.index.val(data)$index_val
+#' fit <- cdcp.regression.estimate(data, index_val)
+#' 
+#' # Example 2: 
+#' data <- cdcp.regression.data.sim()$data
+#' index_val <- cdcp.regression.data.find.index.val(data)$index_val
+#' fit <- cdcp.regression.estimate(data, index_val)
 #' @export
 cdcp.regression.estimate <- function(data, index_val) {
 

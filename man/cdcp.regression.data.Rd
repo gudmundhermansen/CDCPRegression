@@ -2,7 +2,7 @@
 % Please edit documentation in R/cdcp.regression.data.R
 \name{cdcp.regression.data}
 \alias{cdcp.regression.data}
-\title{Panel and Regression Data for Change Point}
+\title{Pre-process Data for the CDCP Panel Regression Package}
 \usage{
 cdcp.regression.data(
   y,
@@ -17,46 +17,55 @@ cdcp.regression.data(
 )
 }
 \arguments{
-\item{y}{The response or dependent variable.}
+\item{y}{the response variable, a \eqn{(n*m)} numeric vector, where \eqn{m} is the number of individuals and \eqn{n} is the number of observations per individual.}
 
-\item{X}{The covariates where we will examine the possibility of a change point. Categorical variables has to be cnverted before...
-Note that the model is constructed such that there will be looking for change point among all variables in X.}
+\item{X}{a numeric covariate matrix of size \eqn{(n*m) \times p}. Note that categorical variables must be converted to dummy variables. The algorithm will look for a common change point for a index (e.g. time) in X.}
 
-\item{Z}{Protected covariates, meaning covariates that we beilve are constant.}
+\item{Z}{protected covariates, i.e. covariates we believe are constant and does not experience a change point.}
 
-\item{D}{Protected categorical covariates.}
+\item{D}{protected categorical covariates.}
 
-\item{index}{List of idexes (e.g. years) that}
+\item{index}{a \eqn{(n*m)}-vector of indexes, e.g. time or year, such that index = 1 represent the first observation for each individual in the panel.}
 
-\item{group}{A list of}
+\item{group}{a vector of length \eqn{(n*m)} representing a potential group structure in the data. If all observations belong to the same group, this should be a \eqn{(n*m)}-vector with the value 1.}
 
-\item{index_dummy}{Set \code{index_dummy = TRUE} to incude a categorical variable for each index (e.g. a year dummy) in the model.}
+\item{index_dummy}{set \code{index_dummy = TRUE} to incude a categorical variable for each index (e.g. a year dummy) in the model.}
 
-\item{group_dummy}{Set \code{group_dummy = TRUE} to include group specific dummy varaibles.}
+\item{group_dummy}{set \code{group_dummy = TRUE} to include a categorical variable for each group.}
 
-\item{lag}{Set \code{lag = TRUE} to include the lagged respose \code{y} as a covariate in the model.}
+\item{lag}{set \code{lag = TRUE} to add the lagged response \eqn{y_{i - 1}} to the model.}
 }
 \value{
-A list of estimated parameters, the maximised log-likelihood, aic, deviance and residuales.
-A list of estimated parameters, the maximised log-likelihood, aic, deviance and residuales...
-An object from \code{cdcp.regression.estimation(...)} is a list containing the following components:
-\describe{
-\item{ln_max}{First item}
-\item{aic}{Second item}
-\item{Dn}{ddd}
-}
-\itemize{
-\item{"parameter 1"}{Stuff}
-\item{}{Stuff}
-}
+A list of vector and matrices for input into various functions in the CDCP Panel Regression Package.
 }
 \description{
-This function compiles data and can also be used to add common dummy variables.
+This function pre-process and creates a structured set of data to be used with the various functions in the CDCPRegression
+package. The model must be within the class \eqn{y_{i, j} = x_{i, j}^{\rm t} \beta_{\rm L} + x_{i, j}^{\rm t} (\beta_{\rm R} - \beta_{\rm L}) I(t_i < \delta) + \gamma Z_{i ,j} + \alpha D_{i, j} + y_{i - 1, j} + \epsilon_{i, j}} ...
 }
 \examples{
-y <- rnorm(100)
-mu <- 0.5*x + 0.1*5
+
+# Example 1: One individual 
+n <- 100
+x <- 1:n
+X <- cbind(1, x)
+y <- 3*(x <= 50) + rnorm(n)
+data <- cdcp.regression.data(y = y, X = X, index = x, group = rep(1, n))
+
+# Example 2: One individual and lagged response 
+
+# Example 3: One individual with a protected variable
+
+# Example 4: One individual and protected categorical variable  
+
+# Example 5: Two individuals
+
+# Example 6: Three individuals with individual one and two in the same group  
+
+# Example 7: Ten individuals with index dummy 
+ 
 }
 \references{
+Hermansen, G., Knutsen, Carl Henrik & Nygaard, Haavard Mokleiv. (2021). Characterizing and assessing temporal heterogeneity: Introducing a change point framework, with applications on the study of democratization, Political Analysis, 29, 485-504
+
 Cunen, C., Hermansen, G., & Hjort, N. L. (2018). Confidence distributions for change-points and regime shifts. Journal of Statistical Planning and Inference, 195, 14-34.
 }

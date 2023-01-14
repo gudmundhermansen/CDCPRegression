@@ -34,9 +34,10 @@ A list of estimated parameters, the maximised log-likelihood, aic, deviance and 
 A list of estimated parameters, the maximised log-likelihood, aic, deviance and residuales...
 An object from \code{cdcp.regression.estimation(...)} is a list containing the following components:
 \describe{
-\item{ln_max}{First item}
-\item{aic}{Second item}
-\item{Dn}{ddd}
+\item{cc_set}{First item}
+\item{cc_set_half}{Second item}
+\item{index_val}{ddd}
+\item{u}{ddd}
 }
 \itemize{
 \item{"parameter 1"}{Stuff}

@@ -4,9 +4,19 @@
 \alias{cdcp.regression.beta.doc}
 \title{Confidence Distribution for the Degree of Change}
 \usage{
-cdcp.regression.beta.doc(model, k, delta_val, index_val, boot = 0, boot_type)
+cdcp.regression.beta.doc(
+  data,
+  model,
+  k,
+  delta_val,
+  index_val,
+  boot = 0,
+  boot_type = c("gaussian", "independent", "group")
+)
 }
 \arguments{
+\item{data}{A data object/list that specify the structure of the model created by the \code{cdcp.regression.data(...)}.}
+
 \item{model}{The estimated model object from \code{cdcp.regression.estimation(...)}.}
 
 \item{index_val}{A consecutive sequence of indexes representing the locations for a potential change point.}
@@ -14,8 +24,6 @@ cdcp.regression.beta.doc(model, k, delta_val, index_val, boot = 0, boot_type)
 \item{boot}{The number of bootstrap samples.}
 
 \item{boot_type}{A subset of \code{index_val} used to speed up the calculations.}
-
-\item{data}{A data object/list that specify the structure of the model created by the \code{cdcp.regression.data(...)}.}
 }
 \value{
 A list of estimated parameters, the maximised log-likelihood, aic, deviance and residuales.

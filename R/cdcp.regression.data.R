@@ -1,14 +1,16 @@
-# Title: Data
+# Title: Confidence Distribution for Change Point for Panel Regression - Data
 #
-# Summary:
+# Summary: Collection of functions to pre-porcess data for the CDCPRegression package. The is needed  
+# to esure a structrued format and to efficiently and correctly hangle dummy variables. 
 #
 # TODO:
-#
+# 1) Write test. 
+# 2) Allow for more undefined inputs, e.g. index_val
+
 cdcp.regression.data.add.dummy <- function(D) {
 
-  # This has to be tested more, also, need to verify that the final
-  # matrix is valid
-  #
+  # TODO: 
+  # 1) Verfiy the output matrix
 
   n <- dim(D)[1]
   p <- dim(D)[2]
@@ -275,7 +277,7 @@ cdcp.regression.data.function <- function(y, X, Z = NULL, D = NULL, index, group
     nr_dummy          <- nr_dummy +   length(Dummy$D_val)
   }
 
-  r      <- ncol(D)
+  r <- ncol(D)
 
   data$D <- D
   data$D_val <- D_val
@@ -289,32 +291,119 @@ cdcp.regression.data.function <- function(y, X, Z = NULL, D = NULL, index, group
   invisible(data)
 }
 
-#' Suggested Change Point Location
-#'
-#' This function returns the largest set of indexes so that the model has at least `n` (specified by `threshold`) number of data points
-#' to the left and right of all possible change points. This function is most useful for large panel data with several
-#' dummy variables.
-#'
-#' @param data A data object/list that specify the structure of the model created by the `cdcp.regression.data`.
-#' @param threshold Minimum number of effective data points per estimated parameter.
-#' @param index_dummy Should be `= TRUE` if index dummies are used in the model; see `cdcp.regression.data` for additional details.
-#' @return A list of estimated parameters, the maximised log-likelihood, aic, deviance and residuales.
-#' A list of estimated parameters, the maximised log-likelihood, aic, deviance and residuales...
-#' An object from `cdcp.regression.estimation(...)` is a list containing the following components:
-#' \describe{
-#'   \item{ln_max}{First item}
-#'   \item{aic}{Second item}
-#'   \item{Dn}{ddd}
-#' }
-#' \itemize{
-#'  \item{"parameter 1"}{Stuff}
-#'  \item{}{Stuff}
-#' }
-#'
-#' @references Cunen, C., Hermansen, G., & Hjort, N. L. (2018). Confidence distributions for change-points and regime shifts. Journal of Statistical Planning and Inference, 195, 14-34.
-#' @export
-cdcp.regression.data.find.index.val <- function(data, index_dummy = FALSE, threshold = 1) {
+cdcp.regression.data.check.data <- function(data) {
+  
+  if (!all(c("y", "X", "Z", "index", "group") %in% attributes(data)$names)) {
+    stop("ERROR: data is not a proper cdcp regression data object. \n")
+  }
 
+  y <- data$y
+  X <- data$X
+  Z <- data$Z
+  index <- data$index
+  group <- data$group
+  D <- data$D
+  
+  cdcp.regression.data.check(y, X, Z, index, group, D)
+}
+
+cdcp.regression.data.check <- function(y, X, Z, index, group, D) {
+  
+  # ERRORS:
+  if (!is.numeric(y)) {
+    stop("ERROR: The denpendent/response variables in y has to be numeric.\n")
+  }
+  
+  if (!is.numeric(X)) {
+    stop("ERROR: The independent variables in X has to be numeric.\n")
+  }
+  
+  if (!is.matrix(X)) {
+    stop("ERROR: X must be matrix. \n")
+  }
+  
+  if (length(y) != nrow(X)) {
+    stop("ERROR: X and y have different number of observations. \n")
+  }
+  
+  if (length(y) != length(index)) {
+    stop("ERROR: index and y have different number of observations. \n")
+  }
+  
+  if (length(y) != length(group)) {
+    stop("ERROR: group and y have different number of observations. \n")
+  }
+  
+  if (!is.null(Z)) {
+    if (!is.numeric(Z)) {
+      stop("ERROR: The independent variables in Z has to be numeric.\n")
+    }
+    if (!is.matrix(Z)) {
+      stop("ERROR: Z must be matrix. \n")
+    }
+    if (length(y) != nrow(Z)) {
+      stop("ERROR: Z and y have different number of observations. \n")
+    }
+  }
+  
+  if (!is.null(D)) {
+    if (!is.matrix(D)) {
+      stop("ERROR: D must be a matrix. \n")
+    }
+    if (length(y) != nrow(D)) {
+      stop("ERROR: D and y have different number of observations. \n")
+    }
+  }
+}
+
+#' Find Suggested Indexes for a Change Point
+#'
+#' For a model specified by the `cdcp.regression.data(...)` function, it finds a set of suggested 
+#' locations for a change point that ensures that that number of data points per estimated parameter is 
+#' at least `threshold` to the left and right of each potential change point. This function is most useful 
+#' for large panel data with several dummy variables.
+#'
+#' @param data output from the `cdcp.regression.data(...)` function.
+#' @param threshold minimum number of data points per estimated parameter.
+#' @param index_dummy if dummy variables are used in the model, set `index_dummy = TRUE` since this adds additional 
+#' constraints to the  number of data points; see `cdcp.regression.data` for some additional details.
+#' @return A list containing the suggested change points and the number of data points per parameter 
+#' on each side of the change point: 
+#' \describe{
+#'   \item{index_val}{suggested locations (indexes) for a change point}
+#'   \item{nr_para_left}{number of data points per paramter to the left for the corresponding index}
+#'   \item{nr_para_right}{number of data points per paramter to the right for the corresponding index}
+#'}
+#' @references Hermansen, G., Knutsen, Carl Henrik & Nygaard, Haavard Mokleiv. (2021). Characterizing and assessing temporal heterogeneity: Introducing a change point framework, with applications on the study of democratization, Political Analysis, 29, 485-504
+#' @references Cunen, C., Hermansen, G., & Hjort, N. L. (2018). Confidence distributions for change-points and regime shifts. Journal of Statistical Planning and Inference, 195, 14-34.
+#' @examples
+#' # Example 1: One individual 
+#' n <- 100
+#' x <- 1:n
+#' X <- cbind(1, x)
+#' y <- 3*(x <= 50) + rnorm(n)
+#' data <- cdcp.regression.data(y = y, X = X, index = x, group = rep(1, n))
+#' index_val <- cdcp.regression.data.find.index.val(data)$index_val
+#' 
+#' # Example 2: Simulation 
+#' data <- cdcp.regression.data.sim()$data
+#' index_val <- cdcp.regression.data.find.index.val(data)$index_val
+#'
+#' @export
+cdcp.regression.data.find.index.val <- function(data, index_dummy = FALSE, threshold = 10) {
+
+  # Check data in data object
+  cdcp.regression.data.check.data(data)
+  
+  # Check of parameters: 
+  if (!is.logical(index_dummy)) {
+    stop("ERROR: The index_dummy variable has to be logical.\n")
+  }  
+  
+  if (!is.numeric(threshold)) {
+    stop("ERROR: The threshold variable has to be numerical.\n")
+  }  
+  
   index <- data$index
   group <- data$group
   p     <- data$p
@@ -331,9 +420,9 @@ cdcp.regression.data.find.index.val <- function(data, index_dummy = FALSE, thres
   para_right <- index_val*0
 
   for (i in seq_along(index_val)) {
-    data_left[i]  <- sum(index <= index_val[i])
-    para_left[i]  <- sum(index_val <= index_val[i])*(index_dummy)
-    para_left[i]  <- para_left[i] + length(unique(group[index_val <= index_val[i]]))
+    data_left[i] <- sum(index <= index_val[i])
+    para_left[i] <- sum(index_val <= index_val[i])*(index_dummy)
+    para_left[i] <- para_left[i] + length(unique(group[index_val <= index_val[i]]))
 
     data_right[i] <- sum(index > index_val[i])
     para_right[i] <- sum(index_val > index_val[i])*(index_dummy)
@@ -341,60 +430,82 @@ cdcp.regression.data.find.index.val <- function(data, index_dummy = FALSE, thres
 
   }
 
-  data_para_left     <- data_left/(para_left + (2*p + q)/2)
+  data_para_left <- data_left/(para_left + (2*p + q)/2)
   data_para_left_max <- max(data_para_left, na.rm = TRUE)
 
-  data_para_right     <- data_right/(para_right + (2*p + q)/2)
+  data_para_right <- data_right/(para_right + (2*p + q)/2)
   data_para_right_max <- max(data_para_right, na.rm = TRUE)
 
-
-
+  
   if ((data_para_left_max < threshold) | (data_para_right_max < threshold)) {
     threshold_max <- min(data_para_left_max, data_para_right_max)
-    threshold     <- max(floor(threshold_max), 0.5)
+    threshold <- max(floor(threshold_max), 0.5)
     cat("WARNING: It is not possible to obtain the desiered number of effective parameters.")
     cat("Maxium threshold is", round(threshold_max, 2), "threshold is set to", threshold, "\n")
   }
 
   index_val <- min(index_val[data_para_left > threshold]):max(index_val[data_para_right > threshold])
 
-  invisible(list(index_val = index_val, nr_para_left = data_para_left, nr_para_right = data_para_right))
+  return(list(index_val = index_val, nr_para_left = data_para_left, nr_para_right = data_para_right))
 
 }
 
-#' Panel and Regression Data for Change Point
+#' Pre-process Data for the CDCP Panel Regression Package
 #'
-#' This function compiles data and can also be used to add common dummy variables.
+#' This function pre-process and creates a structured set of data to be used with the various functions in the CDCPRegression
+#' package. The model must be within the class \eqn{y_{i, j} = x_{i, j}^{\rm t} \beta_{\rm L} + x_{i, j}^{\rm t} (\beta_{\rm R} - \beta_{\rm L}) I(t_i < \delta) + \gamma Z_{i ,j} + \alpha D_{i, j} + y_{i - 1, j} + \epsilon_{i, j}} ... 
 #'
-#' @param y The response or dependent variable.
-#' @param X The covariates where we will examine the possibility of a change point. Categorical variables has to be cnverted before...
-#' Note that the model is constructed such that there will be looking for change point among all variables in X.
-#' @param Z Protected covariates, meaning covariates that we beilve are constant.
-#' @param D Protected categorical covariates.
-#' @param index List of idexes (e.g. years) that
-#' @param group A list of
-#' @param index_dummy Set `index_dummy = TRUE` to incude a categorical variable for each index (e.g. a year dummy) in the model.
-#' @param group_dummy Set `group_dummy = TRUE` to include group specific dummy varaibles.
-#' @param lag Set `lag = TRUE` to include the lagged respose `y` as a covariate in the model.
-#' @return A list of estimated parameters, the maximised log-likelihood, aic, deviance and residuales.
-#' A list of estimated parameters, the maximised log-likelihood, aic, deviance and residuales...
-#' An object from `cdcp.regression.estimation(...)` is a list containing the following components:
-#' \describe{
-#'   \item{ln_max}{First item}
-#'   \item{aic}{Second item}
-#'   \item{Dn}{ddd}
-#' }
-#' \itemize{
-#'  \item{"parameter 1"}{Stuff}
-#'  \item{}{Stuff}
-#' }
+#' @param y the response variable, a \eqn{(n*m)} numeric vector, where \eqn{m} is the number of individuals and \eqn{n} is the number of observations per individual.
+#' @param X a numeric covariate matrix of size \eqn{(n*m) \times p}. Note that categorical variables must be converted to dummy variables. The algorithm will look for a common change point for a index (e.g. time) in X.
+#' @param Z protected covariates, i.e. covariates we believe are constant and does not experience a change point. 
+#' @param D protected categorical covariates.
+#' @param index a \eqn{(n*m)}-vector of indexes, e.g. time or year, such that index = 1 represent the first observation for each individual in the panel.
+#' @param group a vector of length \eqn{(n*m)} representing a potential group structure in the data. If all observations belong to the same group, this should be a \eqn{(n*m)}-vector with the value 1.
+#' @param index_dummy set `index_dummy = TRUE` to incude a categorical variable for each index (e.g. a year dummy) in the model.
+#' @param group_dummy set `group_dummy = TRUE` to include a categorical variable for each group. 
+#' @param lag set `lag = TRUE` to add the lagged response \eqn{y_{i - 1}} to the model.
+#' @return A list of vector and matrices for input into various functions in the CDCP Panel Regression Package. 
+#' @references Hermansen, G., Knutsen, Carl Henrik & Nygaard, Haavard Mokleiv. (2021). Characterizing and assessing temporal heterogeneity: Introducing a change point framework, with applications on the study of democratization, Political Analysis, 29, 485-504
 #' @references Cunen, C., Hermansen, G., & Hjort, N. L. (2018). Confidence distributions for change-points and regime shifts. Journal of Statistical Planning and Inference, 195, 14-34.
 #' @examples
-#' y <- rnorm(100)
-#' mu <- 0.5*x + 0.1*5
+#' 
+#' # Example 1: One individual 
+#' n <- 100
+#' x <- 1:n
+#' X <- cbind(1, x)
+#' y <- 3*(x <= 50) + rnorm(n)
+#' data <- cdcp.regression.data(y = y, X = X, index = x, group = rep(1, n))
+#' 
+#' # Example 2: One individual and lagged response 
+#' 
+#' # Example 3: One individual with a protected variable
+#'
+#' # Example 4: One individual and protected categorical variable  
+#' 
+#' # Example 5: Two individuals
+#'
+#' # Example 6: Three individuals with individual one and two in the same group  
+#' 
+#' # Example 7: Ten individuals with index dummy 
+#'  
 #' @export
+#' @import data.table
 cdcp.regression.data <- function(y, X, Z = NULL, D = NULL, index, group, index_dummy = FALSE, group_dummy = FALSE, lag = FALSE) {
 
+  # Check of parameters: 
+  if (!is.logical(index_dummy)) {
+    stop("ERROR: The index_dummy variable has to be logical.\n")
+  }
+  
+  if (!is.logical(group_dummy)) {
+    stop("ERROR: The group_dummy variable has to be logical.\n")
+  }
+  
+  if (!is.logical(lag)) {
+    stop("ERROR: The lag variable has to be logical.\n")
+  }
+  
+  
   # y: numeric of length n
   # X: numeric matrix of dimension n x p
   # Z: numeric matrix of dimension n x q
@@ -402,51 +513,53 @@ cdcp.regression.data <- function(y, X, Z = NULL, D = NULL, index, group, index_d
   # index: vector of length n (e.g. year, weeks, days or time within each group)
   # group: vector of length n (e.g. country or region such that all rows where group is of type A includes all data for group A)
 
-  # ERRORS:
-  if (!is.numeric(y)) {
-    stop("ERROR: The denpendent/response variables in y has to be numeric.\n")
-  }
-
-  if (!is.numeric(X)) {
-    stop("ERROR: The independent variables in X has to be numeric.\n")
-  }
-
-  if (!is.matrix(X)) {
-    stop("ERROR: X must be matrix. \n")
-  }
-
-  if (length(y) != nrow(X)) {
-    stop("ERROR: X and y have different number of observations. \n")
-  }
-
-  if (length(y) != length(index)) {
-    stop("ERROR: index and y have different number of observations. \n")
-  }
-
-  if (length(y) != length(group)) {
-    stop("ERROR: group and y have different number of observations. \n")
-  }
-
-  if (!is.null(Z)) {
-    if (!is.numeric(Z)) {
-      stop("ERROR: The independent variables in Z has to be numeric.\n")
-    }
-    if (!is.matrix(Z)) {
-      stop("ERROR: Z must be matrix. \n")
-    }
-    if (length(y) != nrow(Z)) {
-      stop("ERROR: Z and y have different number of observations. \n")
-    }
-  }
-
-  if (!is.null(D)) {
-    if (!is.matrix(D)) {
-      stop("ERROR: D must be a matrix. \n")
-    }
-    if (length(y) != nrow(D)) {
-      stop("ERROR: D and y have different number of observations. \n")
-    }
-  }
+  # Check of data: 
+  cdcp.regression.data.check(y, X, Z, index, group, D)
+  
+  # if (!is.numeric(y)) {
+  #   stop("ERROR: The denpendent/response variables in y has to be numeric.\n")
+  # }
+  # 
+  # if (!is.numeric(X)) {
+  #   stop("ERROR: The independent variables in X has to be numeric.\n")
+  # }
+  # 
+  # if (!is.matrix(X)) {
+  #   stop("ERROR: X must be matrix. \n")
+  # }
+  # 
+  # if (length(y) != nrow(X)) {
+  #   stop("ERROR: X and y have different number of observations. \n")
+  # }
+  # 
+  # if (length(y) != length(index)) {
+  #   stop("ERROR: index and y have different number of observations. \n")
+  # }
+  # 
+  # if (length(y) != length(group)) {
+  #   stop("ERROR: group and y have different number of observations. \n")
+  # }
+  # 
+  # if (!is.null(Z)) {
+  #   if (!is.numeric(Z)) {
+  #     stop("ERROR: The independent variables in Z has to be numeric.\n")
+  #   }
+  #   if (!is.matrix(Z)) {
+  #     stop("ERROR: Z must be matrix. \n")
+  #   }
+  #   if (length(y) != nrow(Z)) {
+  #     stop("ERROR: Z and y have different number of observations. \n")
+  #   }
+  # }
+  # 
+  # if (!is.null(D)) {
+  #   if (!is.matrix(D)) {
+  #     stop("ERROR: D must be a matrix. \n")
+  #   }
+  #   if (length(y) != nrow(D)) {
+  #     stop("ERROR: D and y have different number of observations. \n")
+  #   }
+  # }
 
   # WARNINGS:
   if (index_dummy) {
@@ -457,6 +570,81 @@ cdcp.regression.data <- function(y, X, Z = NULL, D = NULL, index, group, index_d
 
   return(cdcp.regression.data.function(y, X, Z, D, index, group, index_dummy, group_dummy, lag))
 }
+
+
+#' Simulate Data for the Confidence Distribution for Change Point for Regression Package.
+#' 
+#' Simulate data from the model \eqn{y_{i, j} = \beta_{\rm L} + (\beta_{\rm R} - \beta_{\rm L}) I(t_i > 1950) + \gamma z_i + \epsilon_{i, j}}, for  
+#' \eqn{t_i = 1900, \ldots , 2000}, \eqn{z_i = i/n}, \eqn{j = 1, \ldots m}, \eqn{n = 100} and \eqn{m = 4}, and with independent \eqn{\epsilon_{i, j} \sim {\rm N}(0, \sigma^2)}. The simulated data set is then aggregate this using `cdcp.regression.data(...)` function to create a toy data 
+#' set that can be used to test the functionality of the confidence distribution for change point 
+#' for regression package. 
+#' 
+#' @param seed a seed for the random number generator. 
+#' @param beta the intercept to the left and right of the change point.    
+#' @param sigma the standard deviation used for simulating data.
+#' @return Output from `cdcp.regression.data(...)` with the simulated data. 
+#' @references Hermansen, G., Knutsen, Carl Henrik & Nygaard, Haavard Mokleiv. (2021). Characterizing and assessing temporal heterogeneity: Introducing a change point framework, with applications on the study of democratization, Political Analysis, 29, 485-504
+#' @references Cunen, C., Hermansen, G., & Hjort, N. L. (2018). Confidence distributions for change-points and regime shifts. Journal of Statistical Planning and Inference, 195, 14-34.
+#' @examples
+#' data <- cdcp.regression.data.sim()
+#' @export
+cdcp.regression.data.sim <- function(seed = 1, beta = c(0.30, 0.35), sigma = 0.1) {
+  
+  if (!is.numeric(beta)) {
+    stop("ERROR: beta must be numeric.\n")
+  }
+  
+  if (!is.numeric(sigma)) {
+    stop("ERROR: sigma must be numeric.\n")
+  }
+  
+  if (length(beta) != 2) {
+    stop("ERROR: beta must be of length 2.\n")
+  }
+  
+  set.seed(seed)
+  
+  country_names <- c("Mirasius", "Oras", "Anglinthius", "Olvion")
+  country_names <- sort(country_names)
+  
+  year_min <- 1900
+  year_max <- 2000
+  year_seq <- year_min:year_max
+  
+  n <- length(year_seq)
+  m <- length(country_names)
+  
+  beta_L <- beta[1]
+  beta_R <- beta[2]
+  
+  tau_0 <- 1950
+  gamma_0 <- 1
+  
+  u <- rep(year_seq, times = m)/year_max
+  mu <- rep(beta_L + (beta_R - beta_L)*(year_seq > tau_0), times = m) + gamma_0*u
+  sigma <- sigma
+  
+  y <- mu + sigma*rnorm(n*m)
+  X <- as.matrix(1 + mu*0)
+  Z <- as.matrix(u)
+  
+  index <- rep(year_seq, times = m)
+  group <- rep(country_names, each = n)
+  country <- rep(country_names, each = n)
+  id <- rep(1:m, each = n)
+  
+  index_val <- 1910:1990
+  
+  data <- cdcp.regression.data(y = y, X = X, Z = Z, index = index, group = group, index_dummy = FALSE, group_dummy = FALSE, lag = FALSE)
+  
+  return(list(data = data, index_val = index_val))
+}
+
+
+
+
+
+
 
 
 cdcp.regression.data.test <- function() {

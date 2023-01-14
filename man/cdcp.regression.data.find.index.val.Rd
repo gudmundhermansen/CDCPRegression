@@ -2,36 +2,49 @@
 % Please edit documentation in R/cdcp.regression.data.R
 \name{cdcp.regression.data.find.index.val}
 \alias{cdcp.regression.data.find.index.val}
-\title{Suggested Change Point Location}
+\title{Find Suggested Indexes for a Change Point}
 \usage{
-cdcp.regression.data.find.index.val(data, index_dummy = FALSE, threshold = 1)
+cdcp.regression.data.find.index.val(data, index_dummy = FALSE, threshold = 10)
 }
 \arguments{
-\item{data}{A data object/list that specify the structure of the model created by the \code{cdcp.regression.data}.}
+\item{data}{output from the \code{cdcp.regression.data(...)} function.}
 
-\item{index_dummy}{Should be \verb{= TRUE} if index dummies are used in the model; see \code{cdcp.regression.data} for additional details.}
+\item{index_dummy}{if dummy variables are used in the model, set \code{index_dummy = TRUE} since this adds additional
+constraints to the  number of data points; see \code{cdcp.regression.data} for some additional details.}
 
-\item{threshold}{Minimum number of effective data points per estimated parameter.}
+\item{threshold}{minimum number of data points per estimated parameter.}
 }
 \value{
-A list of estimated parameters, the maximised log-likelihood, aic, deviance and residuales.
-A list of estimated parameters, the maximised log-likelihood, aic, deviance and residuales...
-An object from \code{cdcp.regression.estimation(...)} is a list containing the following components:
+A list containing the suggested change points and the number of data points per parameter
+on each side of the change point:
 \describe{
-\item{ln_max}{First item}
-\item{aic}{Second item}
-\item{Dn}{ddd}
-}
-\itemize{
-\item{"parameter 1"}{Stuff}
-\item{}{Stuff}
+\item{index_val}{suggested locations (indexes) for a change point}
+\item{nr_para_left}{number of data points per paramter to the left for the corresponding index}
+\item{nr_para_right}{number of data points per paramter to the right for the corresponding index}
 }
 }
 \description{
-This function returns the largest set of indexes so that the model has at least \code{n} (specified by \code{threshold}) number of data points
-to the left and right of all possible change points. This function is most useful for large panel data with several
-dummy variables.
+For a model specified by the \code{cdcp.regression.data(...)} function, it finds a set of suggested
+locations for a change point that ensures that that number of data points per estimated parameter is
+at least \code{threshold} to the left and right of each potential change point. This function is most useful
+for large panel data with several dummy variables.
+}
+\examples{
+# Example 1: One individual 
+n <- 100
+x <- 1:n
+X <- cbind(1, x)
+y <- 3*(x <= 50) + rnorm(n)
+data <- cdcp.regression.data(y = y, X = X, index = x, group = rep(1, n))
+index_val <- cdcp.regression.data.find.index.val(data)$index_val
+
+# Example 2: Simulation 
+data <- cdcp.regression.data.sim()$data
+index_val <- cdcp.regression.data.find.index.val(data)$index_val
+
 }
 \references{
+Hermansen, G., Knutsen, Carl Henrik & Nygaard, Haavard Mokleiv. (2021). Characterizing and assessing temporal heterogeneity: Introducing a change point framework, with applications on the study of democratization, Political Analysis, 29, 485-504
+
 Cunen, C., Hermansen, G., & Hjort, N. L. (2018). Confidence distributions for change-points and regime shifts. Journal of Statistical Planning and Inference, 195, 14-34.
 }

@@ -17,7 +17,6 @@ cdcp.regression.beta.doc.function <- function(data, model, k, delta_val, index_v
   r     <- data$r; if (is.null(r)) {r <- 0}
   l     <- 2*p + q + r - 1
 
-
   Dummy <- data$D
 
   index <- data$index
@@ -31,7 +30,6 @@ cdcp.regression.beta.doc.function <- function(data, model, k, delta_val, index_v
 
   group           <- data$group
   group_val       <- unique(group)
-
 
   # Old:
   # 1)
@@ -52,8 +50,6 @@ cdcp.regression.beta.doc.function <- function(data, model, k, delta_val, index_v
   if (length(D) == 1 & D[1, 1] == 0) {D_inv <- 0} else {D_inv <- solve(D)}
 
   X_0   <- X*0
-
-
 
   # Alternatives for simulating the residuals for the bootstrap
   if (boot_type[1] == "gaussian") {
@@ -77,9 +73,7 @@ cdcp.regression.beta.doc.function <- function(data, model, k, delta_val, index_v
 
   if (boot > 0) {
 
-
     pb <- txtProgressBar(min = 0, max = length(delta_val), style = 3)
-
 
     Kn_sim_delta_val <- foreach::foreach(i = seq_along(delta_val)) %do% {
 
@@ -241,6 +235,31 @@ cdcp.regression.beta.doc.function <- function(data, model, k, delta_val, index_v
   invisible(list(cc = diff_cc, cc_approx = pchisq(diff_Dn, df = 1), Dn = diff_Dn, ln_profile = diff_profile, delta_val = delta_val, Kn = Kn_sim))
 }
 
+cdcp.regression.beta.doc.check <- function(doc) {
+ 
+  if (!all(c("cc", "cc_approx", "delta_val") %in% attributes(doc)$names)) {
+    stop("ERROR: Provide a proper list of doc values, it must contain cc, cc_approx and delta_val. \n")
+  }
+  
+  if (!(is.numeric(doc$delta_val) & length(doc$delta_val) > 0)) {
+    stop("ERROR: delta_val must be an numeric vector. \n")
+  }
+  
+  if (!is.null(doc$cc)) {
+    if (!(is.numeric(doc$cc) & length(doc$cc) == length(doc$delta_val))) {
+      stop("ERROR: cc must be an numeric vector and of the same length as delta_val. \n")
+    }
+  }
+  
+  if (!is.null(doc$cc_approx)) {
+    if (!(is.numeric(doc$cc_approx) & length(doc$cc_approx) == length(doc$delta_val))) {
+      stop("ERROR: cc_approx must be an numeric vector and of the same length as delta_val. \n")
+    }
+  }
+    
+}
+
+
 #' Confidence Distribution for the Degree of Change
 #'
 #' This function can compute both the bootstrap and the approximation...
@@ -267,27 +286,67 @@ cdcp.regression.beta.doc.function <- function(data, model, k, delta_val, index_v
 #' @references Cunen, C., Hermansen, G., & Hjort, N. L. (2018). Confidence distributions for change-points and regime shifts. Journal of Statistical Planning and Inference, 195, 14-34.
 #' @export
 cdcp.regression.beta.doc <- function(data, model, k, delta_val, index_val, boot = 0, boot_type = c("gaussian", "independent", "group")) {
-  # Check size of k against dimension of X
 
-  if (!all(c("y", "X", "Z", "index", "group") %in% attributes(data)$names)) {
-    stop("ERROR: data is not a proper cdcp regression data object. \n")
+  cdcp.regression.data.check.data(data)
+
+  cdcp.regression.estimate.check.model(model)
+
+  if (ncol(data$X) < k | (round(k) - k) > 0) {
+    stop("ERROR: k must represent a column in X. \n")
   }
-
+    
+  if (!(is.numeric(delta_val) & length(delta_val) > 0)) {
+    stop("ERROR: delta_val must be an numeric vector. \n")
+  }
+  
   if (!all(index_val %in% unique(data$index))) {
     stop("ERROR: Values in index_val are not found in data index.\n")
   }
-
-  if (ncol(data$X) < k) {
-    stop("ERROR: k is not a column in X. \n")
+  
+  if (!(is.numeric(boot) & (round(boot) - boot) == 0)) {
+    stop("ERROR: boot must be an integer. \n")
   }
 
   if (!(boot_type[1] %in% c("gaussian", "independent", "group"))) {
     stop("ERROR: Incorrect boot type, should be either gaussian, independent or group.\n")
   }
 
+  return(cdcp.regression.beta.doc.function(data, model, k, delta_val, index_val, boot = boot, boot_type))
 
-  return(cdcp.regression.beta.doc.function(data, model, k, delta_val, index_val, boot = 0, boot_type))
+}
 
+#' Plot Confidence Curve for the Degree of Change
+#'
+#' Plot the confidence curve (cc) for the degree of change. 
+#'
+#' @param doc the output from running the `cdcp.regression.data(...)` function.
+#' @param approx should the approximation of the confidence curve be plotted (`approx = TRUE` will plot this).
+#'
+#' @references Cunen, C., Hermansen, G., & Hjort, N. L. (2018). Confidence distributions for change-points and regime shifts. Journal of Statistical Planning and Inference, 195, 14-34.
+#' @export
+cdcp.regression.beta.doc.plot <- function(doc, approx = TRUE) {
+  
+  cdcp.regression.beta.doc.check(doc)
+  
+  if (!is.logical(approx)) {
+    stop("ERROR: approx must be logical.\n")
+  }
+  
+  if (!is.null(doc$cc)) {
+    plot(doc$delta_val, doc$cc, type = 'l', lwd = 1.3, ylim = c(0, 1), xlab = "", ylab = "")
+    title(ylab = "Confidence Curve", xlab = "delta", line = 2.5)
+  } else {
+    cat("WARNING: The confidence curve is missing.\n")
+  }
+  
+  if (approx) {
+    if (!is.null(doc$cc_approx)) {
+      plot(doc$delta_val, doc$cc_approx, type = 'l', lwd = 1.3, ylim = c(0, 1), xlab = "", ylab = "")
+      title(ylab = "Confidence Curve (approximation)", xlab = "delta", line = 2.5)
+    } else {
+      cat("WARNING: The approximative confidence curve is missing.\n")
+    }
+  }
 }
 
 

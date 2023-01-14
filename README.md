@@ -1,2 +1,2 @@
 # CDCPRegression
-Confidence Distribution for Change Points for Regression and Panel Data
+Confidence Distribution for Change Points for Panel Regression Data
