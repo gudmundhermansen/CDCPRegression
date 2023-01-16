@@ -4,7 +4,7 @@ Confidence Distribution for Change Points for Panel Regression
 # Introduction and Summary 
 
 This package contain the main methods used in ??? for change point analysis in panel regression models. The package is desgined for models of the type 
-$$Y_{i, j} = \beta_{\rm L}^{\rm t} x_{i, j} + (\beta_{\rm L} - \beta_{\rm L})^{\rm t} x_{i, j} + \gamma^{\rm t} z_{i, j} + \alpba d_{i, j} + y_{i - 1, j} + \epsilon_{i, j}$$
+$$Y_{i, j} = x_{i, j}^{\rm t} \beta_{\rm L} +  x_{i, j}^{\rm t} (\beta_{\rm L} - \beta_{\rm L}) + z_{i, j}^{\rm t} \gamma + d_{i, j}^{\rm t} \delta + y_{i - 1, j} + \epsilon_{i, j}$$
 
 # Note
 
