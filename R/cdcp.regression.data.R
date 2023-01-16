@@ -477,6 +477,12 @@ cdcp.regression.data.find.index.val <- function(data, index_dummy = FALSE, thres
 #' data <- cdcp.regression.data(y = y, X = X, index = x, group = rep(1, n))
 #' 
 #' # Example 2: One individual and lagged response 
+#'
+#' #' n <- 100
+#' x <- 1:n
+#' X <- cbind(1, x)
+#' y <- 3*(x <= 50) + rnorm(n)
+#' data <- cdcp.regression.data(y = y, X = X, index = x, group = rep(1, n), lag = TRUE)
 #' 
 #' # Example 3: One individual with a protected variable
 #'

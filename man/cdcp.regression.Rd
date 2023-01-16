@@ -2,7 +2,7 @@
 % Please edit documentation in R/cdcp.regression.cdcp.R
 \name{cdcp.regression}
 \alias{cdcp.regression}
-\title{Confidence Distribution for the Location of the Change Point}
+\title{Confidence Sets for the Location of a Change Point for Panel Regression}
 \usage{
 cdcp.regression(
   data,
@@ -15,38 +15,43 @@ cdcp.regression(
 )
 }
 \arguments{
-\item{data}{A data object/list that specify the structure of the model created by the \code{cdcp.regression.data(...)}.}
+\item{data}{a list of data that specify the structure of the model, it must be created by the \code{cdcp.regression.data(...)} function.}
 
-\item{model}{The estimated model object from \code{cdcp.regression.estimation(...)}.}
+\item{model}{the output of \code{cdcp.regression.estimation(...)} (list of estimated model paramters from).}
 
-\item{index_val}{A consecutive sequence of indexes representing the locations for a potential change point.}
+\item{index_val}{a consecutive sequence of indexes representing all potential locations for a change point.}
 
-\item{boot}{The number of bootstrap samples.}
+\item{boot}{the number of bootstrap samples.}
 
-\item{index_val_sub}{A subset of \code{index_val} used to speed up the calculations.}
+\item{index_val_sub}{a subset of \code{index_val} that can be used to speed up calculations if we now the approximate location of the change point.}
 
-\item{u}{The resolution for the probability...}
+\item{u}{the resolution used to compute the confidence sets (a sequence of numbers between 0 and 1).}
 
-\item{boot_type}{The method used to sample residuales for the bootstrap \verb{= "group"} ...}
+\item{boot_type}{the method used to sample residuals for the bootstrap: \code{gaussian} use use parametric
+bootstrap under the assumption of a Gaussian model, \code{independent} makes independent draws from the
+estimated residuals and \code{group} use the assumed group structure to draw independent residuales.}
 }
 \value{
-A list of estimated parameters, the maximised log-likelihood, aic, deviance and residuales.
-A list of estimated parameters, the maximised log-likelihood, aic, deviance and residuales...
-An object from \code{cdcp.regression.estimation(...)} is a list containing the following components:
+A list containing the following:
 \describe{
-\item{cc_set}{First item}
-\item{cc_set_half}{Second item}
-\item{index_val}{ddd}
-\item{u}{ddd}
-}
-\itemize{
-\item{"parameter 1"}{Stuff}
-\item{}{Stuff}
+\item{cc_set}{A matrix representation of the confidense set for all levels u and index_val.}
+\item{cc_set_half}{Same as above but with half correction. }
+\item{index_val}{same as index_val argument}
+\item{u}{same as u argument}
 }
 }
 \description{
-\code{cdcp.regression(...)} compute a bootstrap for the change point
+This function computes the confidence distribution, using bootstrapping, for the location of a
+change point for panel regression data.
+}
+\examples{
+# Example 1: 
+data <- cdcp.regression.data.sim()
+model <- cdcp.regression.estimate(data$data, data$index_val)
+cd <- cdcp.regression(data$data, model, data$index_val)
 }
 \references{
+Hermansen, G., Knutsen, Carl Henrik & Nygaard, Haavard Mokleiv. (2021). Characterizing and assessing temporal heterogeneity: Introducing a change point framework, with applications on the study of democratization, Political Analysis, 29, 485-504
+
 Cunen, C., Hermansen, G., & Hjort, N. L. (2018). Confidence distributions for change-points and regime shifts. Journal of Statistical Planning and Inference, 195, 14-34.
 }

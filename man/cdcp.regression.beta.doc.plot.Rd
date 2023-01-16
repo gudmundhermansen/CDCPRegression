@@ -2,18 +2,29 @@
 % Please edit documentation in R/cdcp.regression.doc.R
 \name{cdcp.regression.beta.doc.plot}
 \alias{cdcp.regression.beta.doc.plot}
-\title{Plot Confidence Curve for the Degree of Change}
+\title{Plot Confidence Curve for the Degree of Change for Panel Regression}
 \usage{
-cdcp.regression.beta.doc.plot(doc, approx = TRUE)
+cdcp.regression.beta.doc.plot(cc, approx = TRUE)
 }
 \arguments{
-\item{doc}{the output from running the \code{cdcp.regression.data(...)} function.}
+\item{cc}{the output from running the \code{cdcp.regression.data(...)} function.}
 
 \item{approx}{should the approximation of the confidence curve be plotted (\code{approx = TRUE} will plot this).}
 }
 \description{
-Plot the confidence curve (cc) for the degree of change.
+Plot the confidence curve (cc) for the degree of change for a specific coffecients, see
+\code{cdcp.regression.beta.doc(...)} for details. The plotting function is quite minimal, however,
+it should be easy to modify this function (or make a new) to individual needs.
+}
+\examples{
+# Example 1: 
+data <- cdcp.regression.data.sim()
+model <- cdcp.regression.estimate(data$data, data$index_val)
+cc <- cdcp.regression.beta.doc(data$data, model, k = 1, seq(-0.20, 0.15, length.out = 100), data$index_val)
+cdcp.regression.beta.doc.plot(cc)
 }
 \references{
+Hermansen, G., Knutsen, Carl Henrik & Nygaard, Haavard Mokleiv. (2021). Characterizing and assessing temporal heterogeneity: Introducing a change point framework, with applications on the study of democratization, Political Analysis, 29, 485-504
+
 Cunen, C., Hermansen, G., & Hjort, N. L. (2018). Confidence distributions for change-points and regime shifts. Journal of Statistical Planning and Inference, 195, 14-34.
 }

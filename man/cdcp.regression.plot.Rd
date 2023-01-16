@@ -2,43 +2,29 @@
 % Please edit documentation in R/cdcp.regression.cdcp.R
 \name{cdcp.regression.plot}
 \alias{cdcp.regression.plot}
-\title{Plot ... Confidence Distribution for the Location of the Change Point}
+\title{Plot of Confidence Sets for the Location of a Change Point for Panel Regression}
 \usage{
-cdcp.regression.plot(cc, half_correction = TRUE)
+cdcp.regression.plot(cd, half_correction = TRUE)
 }
 \arguments{
-\item{data}{A data object/list that specify the structure of the model created by the \code{cdcp.regression.data(...)}.}
+\item{half_correction}{If \code{TRUE} the confidence sets are plotted with half correction.}
 
-\item{model}{The estimated model object from \code{cdcp.regression.estimation(...)}.}
-
-\item{index_val}{A consecutive sequence of indexes representing the locations for a potential change point.}
-
-\item{boot}{The number of bootstrap samples.}
-
-\item{index_val_sub}{A subset of \code{index_val} used to speed up the calculations.}
-
-\item{u}{The resolution for the probability...}
-
-\item{boot_type}{The method used to sample residuales for the bootstrap \verb{= "group"} ...}
-}
-\value{
-A list of estimated parameters, the maximised log-likelihood, aic, deviance and residuales.
-A list of estimated parameters, the maximised log-likelihood, aic, deviance and residuales...
-An object from \code{cdcp.regression.estimation(...)} is a list containing the following components:
-\describe{
-\item{cc_set}{First item}
-\item{cc_set_half}{Second item}
-\item{index_val}{ddd}
-\item{u}{ddd}
-}
-\itemize{
-\item{"parameter 1"}{Stuff}
-\item{}{Stuff}
-}
+\item{cdcp}{The output of \code{cdcp.regression(...)}.}
 }
 \description{
-\code{cdcp.regression(...)} compute a bootstrap for the change point
+Plot the confidence sets for the location of a change point for panel regression. Note that the
+plotting function is quite minimal, however, it should be easy to modify this function (or make a
+new) to individual needs.
+}
+\examples{
+# Example 1: 
+data <- cdcp.regression.data.sim()
+model <- cdcp.regression.estimate(data$data, data$index_val)
+cd <- cdcp.regression(data$data, model, data$index_val)
+cdcp.regression.plot(cd)
 }
 \references{
+Hermansen, G., Knutsen, Carl Henrik & Nygaard, Haavard Mokleiv. (2021). Characterizing and assessing temporal heterogeneity: Introducing a change point framework, with applications on the study of democratization, Political Analysis, 29, 485-504
+
 Cunen, C., Hermansen, G., & Hjort, N. L. (2018). Confidence distributions for change-points and regime shifts. Journal of Statistical Planning and Inference, 195, 14-34.
 }

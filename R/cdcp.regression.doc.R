@@ -4,8 +4,10 @@
 #
 # TODO:
 #
-cdcp.regression.beta.doc.function <- function(data, model, k, delta_val, index_val, boot = 0, boot_type = c("gaussian", "independent", "group")) {
-
+cdcp.regression.beta.doc.function <- function(data, model, k, delta_val, index_val, boot = 0, boot_type = c("gaussian", "independent", "group"), cores = 4) {
+  
+  doMC::registerDoMC(cores)
+  
   y     <- data$y
   n     <- length(y)
   X     <- data$X
@@ -232,7 +234,7 @@ cdcp.regression.beta.doc.function <- function(data, model, k, delta_val, index_v
     diff_cc <- NULL
   }
 
-  invisible(list(cc = diff_cc, cc_approx = pchisq(diff_Dn, df = 1), Dn = diff_Dn, ln_profile = diff_profile, delta_val = delta_val, Kn = Kn_sim))
+  return(list(cc = diff_cc, cc_approx = pchisq(diff_Dn, df = 1), Dn = diff_Dn, ln_profile = diff_profile, delta_val = delta_val, Kn = Kn_sim))
 }
 
 cdcp.regression.beta.doc.check <- function(cc) {
@@ -293,7 +295,9 @@ cdcp.regression.beta.doc.check <- function(cc) {
 #' model <- cdcp.regression.estimate(data$data, data$index_val)
 #' cc <- cdcp.regression.beta.doc(data$data, model, k = 1, seq(-0.20, 0.15, length.out = 100), data$index_val)
 #' @export
-cdcp.regression.beta.doc <- function(data, model, k, delta_val, index_val, boot = 0, boot_type = c("gaussian", "independent", "group")) {
+#' @import foreach
+#' @import doMC
+cdcp.regression.beta.doc <- function(data, model, index_val, k, delta_val, boot = 0, boot_type = c("gaussian", "independent", "group"), cores = 4) {
 
   cdcp.regression.data.check.data(data)
 
@@ -319,14 +323,12 @@ cdcp.regression.beta.doc <- function(data, model, k, delta_val, index_val, boot 
     stop("ERROR: Incorrect boot type, should be either gaussian, independent or group.\n")
   }
 
-  return(cdcp.regression.beta.doc.function(data, model, k, delta_val, index_val, boot = boot, boot_type))
+  return(cdcp.regression.beta.doc.function(data, model, k, delta_val, index_val, boot = boot, boot_type, cores = cores))
 
 }
 
 #' Plot Confidence Curve for the Degree of Change for Panel Regression
 #'
-#' 
-#' 
 #' Plot the confidence curve (cc) for the degree of change for a specific coffecients, see 
 #' `cdcp.regression.beta.doc(...)` for details. The plotting function is quite minimal, however, 
 #' it should be easy to modify this function (or make a new) to individual needs.

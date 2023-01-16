@@ -1,5 +1,5 @@
 Package: CDCPRegression
-Title: Confidence Distribution for Change Point in Regression Models
+Title: Confidence Distribution for Change Points for Panel Regression
 Version: 0.0.9.0
 Authors@R: 
     person(given = "Gudmund",
@@ -8,11 +8,13 @@ Authors@R:
            email = "gudmund.hermansen@gmail.com",
            comment = c(ORCID = "YOUR-ORCID-ID"))
 Description: Implementation of the confidence distribution method for change point and regime
-    shifts from Cunen, Hermansen \& Hjort (2018) for regression models and panel data.
+    shifts from Cunen, Hermansen \& Hjort (2018) for panel regression models.
 License: `use_gpl3_license()`
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
 Imports:
-	data.table (>= 1.12.8)
+	data.table
+	doMC
+	foreach

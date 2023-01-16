@@ -10,11 +10,11 @@
 # 2) Use similar method as for the CC and CS simulation to speed up calculations
 
 cdcp.regression.estimate.check.model <- function(model) {
-  if (!all(c("ln_max", "aic", "Dn", "beta", "betaL", "betaR", 
-             "tau", "gamma", "dummy", "mu", 
-             "sigma", "sigma_beta", "sigma_betaL", "sigma_betaLR", "sigma_gamma", "sigma_dummy", 
+  if (!all(c("ln_max", "aic", "Dn", 
+             "beta", "betaL", "betaR", "tau", "gamma", "dummy", "mu", 
+             "sigma", "sigma_beta", "sigma_betaL", "sigma_betaR", "sigma_gamma", "sigma_dummy", 
              "res", "index_val") %in% attributes(model)$names)) {
-    stop("ERROR: data is not a proper cdcp regression data object. \n")
+    stop("ERROR: model is not a proper cdcp regression model \n")
   }
 }
 
@@ -146,7 +146,7 @@ cdcp.regression.estimate.function <- function(data, index_val = NULL) {
 
 }
 
-#' Estimating parameters for the Panale Regression Model with a Change Point
+#' Estimate Parameters for the Panel Regression Model for Change Point
 #'
 #' This function estimate the parameters, including the location of the change point,
 #' for the model specified by `cdcp.regression.data(...)`.
@@ -208,7 +208,7 @@ cdcp.regression.estimate <- function(data, index_val) {
   return(cdcp.regression.estimate.function(data = data, index_val = index_val))
 }
 
-cdcd.pannel.estimation.test <- function() {
+cdcd.panel.estimation.test <- function() {
 
   set.seed(441)
 

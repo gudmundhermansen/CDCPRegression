@@ -2,7 +2,7 @@
 % Please edit documentation in R/cdcp.regression.doc.R
 \name{cdcp.regression.beta.doc}
 \alias{cdcp.regression.beta.doc}
-\title{Confidence Distribution for the Degree of Change}
+\title{Confidence Curve for the Degree of Change for Panel Regression}
 \usage{
 cdcp.regression.beta.doc(
   data,
@@ -15,33 +15,46 @@ cdcp.regression.beta.doc(
 )
 }
 \arguments{
-\item{data}{A data object/list that specify the structure of the model created by the \code{cdcp.regression.data(...)}.}
+\item{data}{a list of data that specify the structure of the model, it must be created by the \code{cdcp.regression.data(...)} function.}
 
-\item{model}{The estimated model object from \code{cdcp.regression.estimation(...)}.}
+\item{model}{the output of \code{cdcp.regression.estimation(...)} (list of estimated model paramters from).}
 
-\item{index_val}{A consecutive sequence of indexes representing the locations for a potential change point.}
+\item{k}{the index of the \eqn{\beta} to compute the confidence curve for the degree of change, e.g. \code{k = 1} computes the confidence curve for the degree of change for the intercept (i.e. \eqn{\beta_0}).}
 
-\item{boot}{The number of bootstrap samples.}
+\item{delta_val}{a consecutive sequence of values representing potential values of change.}
 
-\item{boot_type}{A subset of \code{index_val} used to speed up the calculations.}
+\item{boot}{the number of bootstrap samples. Note that if \code{boot = 0} use instead large sample approximations to compute the confidence curve.}
+
+\item{boot_type}{boot_type The method used to sample residuals for the bootstrap: \code{gaussian} use use parametric
+bootstrap under the assumption of a Gaussian model, \code{independent} makes independent draws from the
+estimated residuals and \code{group} use the assumed group structure to draw independent residuales.}
 }
 \value{
-A list of estimated parameters, the maximised log-likelihood, aic, deviance and residuales.
-A list of estimated parameters, the maximised log-likelihood, aic, deviance and residuales...
-An object from \code{cdcp.regression.estimation(...)} is a list containing the following components:
+A list containing the following:
 \describe{
-\item{ln_max}{First item}
-\item{aic}{Second item}
-\item{Dn}{ddd}
-}
-\itemize{
-\item{"parameter 1"}{Stuff}
-\item{}{Stuff}
+\item{cc}{First item}
+\item{cc_approx}{the approximative confidence curve computed for all values of delta_val}
+\item{Dn}{the deviance for all value of delta_val}
+\item{ln_profile}{the maximised profile log-likelihood for all delta_val}
+\item{delta_val}{delta_val}
+\item{Kn}{the empirical cdf of the deviance evaluated at the observed deviance}
 }
 }
 \description{
-This function can compute both the bootstrap and the approximation...
+This function compute the confidence curve for the so-called degree of change for one important
+\eqn{\beta} coefficients in the model, see \code{cdcp.regression.data(...)} for the model specification.
+Note that the full bootstrap approximation is quite computer intensive, it is therefore recommended
+to run \code{boot = 0} first and then use \code{boot = 1000} on a coarse set to either verify or compute the
+full confidence curve on a subset of values in \code{delta_val}.
+}
+\examples{
+# Example 1: 
+data <- cdcp.regression.data.sim()
+model <- cdcp.regression.estimate(data$data, data$index_val)
+cc <- cdcp.regression.beta.doc(data$data, model, k = 1, seq(-0.20, 0.15, length.out = 100), data$index_val)
 }
 \references{
+Hermansen, G., Knutsen, Carl Henrik & Nygaard, Haavard Mokleiv. (2021). Characterizing and assessing temporal heterogeneity: Introducing a change point framework, with applications on the study of democratization, Political Analysis, 29, 485-504
+
 Cunen, C., Hermansen, G., & Hjort, N. L. (2018). Confidence distributions for change-points and regime shifts. Journal of Statistical Planning and Inference, 195, 14-34.
 }

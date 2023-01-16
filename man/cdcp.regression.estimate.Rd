@@ -2,14 +2,14 @@
 % Please edit documentation in R/cdcp.regression.estimation.R
 \name{cdcp.regression.estimate}
 \alias{cdcp.regression.estimate}
-\title{Estimating the parameters in the model}
+\title{Estimating parameters for the Panale Regression Model with a Change Point}
 \usage{
 cdcp.regression.estimate(data, index_val)
 }
 \arguments{
-\item{data}{A data object/list that specify the structure of the model created by the}
+\item{data}{output list of data from \code{cdcp.regression.data(...)}.}
 
-\item{index_val}{Vector of indexes representing the locations for a potential change point}
+\item{index_val}{vector of indexes for the locations for a potential change points.}
 }
 \value{
 A list of estimated parameters, the maximised log-likelihood, aic, deviance and residuales.
@@ -38,8 +38,7 @@ An object from cdcp.regression.estimation(...) is a list containing the followin
 }
 \description{
 This function estimate the parameters, including the location of the change point,
-for the specified model. The model is specified through a data object/list, which
-should be created using the cdcp.regression.data(...) function.
+for the model specified by \code{cdcp.regression.data(...)}.
 }
 \examples{
 

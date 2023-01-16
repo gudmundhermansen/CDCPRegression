@@ -4,12 +4,14 @@
 #
 # TODO:
 #
-cdcp.regression.simple <- function(data, model, index_val, boot = 100, index_val_sub = NULL, u = seq(0, 1, length.out = 100), boot_type = c("gaussian", "independent", "group")) {
-  return(cdcp.regression.simple.function(data = data, model = model, index_val = index_val, boot = boot, index_val_sub = index_val_sub, u = u, boot_type = boot_type))
+cdcp.regression.simple <- function(data, model, index_val, boot = 100, index_val_sub = NULL, u = seq(0, 1, length.out = 100), boot_type = c("gaussian", "independent", "group"), cores = 4) {
+  return(cdcp.regression.simple.function(data = data, model = model, index_val = index_val, boot = boot, index_val_sub = index_val_sub, u = u, boot_type = boot_type, cores = cores))
 }
 
-cdcp.regression.simple.function <- function(data, model, index_val, boot = 100, index_val_sub = NULL, u = NULL, boot_type = c("gaussian", "independent", "group")) {
+cdcp.regression.simple.function <- function(data, model, index_val, boot = 100, index_val_sub = NULL, u = NULL, boot_type = c("gaussian", "independent", "group"), cores = 4) {
 
+  doMC::registerDoMC(cores)
+  
   # The resolution of confidence (0 -> 1) used for the computation of the confidence sets
   if (is.null(u)) {
     u <- seq(0, 1, length.out = 100)
@@ -19,7 +21,6 @@ cdcp.regression.simple.function <- function(data, model, index_val, boot = 100, 
   if (is.null(index_val_sub)) {
     index_val_sub <- index_val
   }
-
 
   y               <- data$y
   X               <- data$X
@@ -321,7 +322,9 @@ cdcp.regression.check <- function(cd) {
 #' model <- cdcp.regression.estimate(data$data, data$index_val)
 #' cd <- cdcp.regression(data$data, model, data$index_val)
 #' @export
-cdcp.regression <- function(data, model, index_val, boot = 100, index_val_sub = NULL, u = seq(0, 1, length.out = 100), boot_type = c("gaussian", "independent", "group")) {
+#' @import foreach
+#' @import doMC
+cdcp.regression <- function(data, model, index_val, boot = 100, index_val_sub = NULL, u = seq(0, 1, length.out = 100), boot_type = c("gaussian", "independent", "group"), cores = 4) {
 
   cdcp.regression.data.check.data(data)
   
@@ -353,7 +356,7 @@ cdcp.regression <- function(data, model, index_val, boot = 100, index_val_sub = 
     stop("ERROR: Incorrect boot type, should be either gaussian, independent or group.\n")
   }
 
-  return(cdcp.regression.simple(data, model, index_val, boot, index_val_sub, u, boot_type))
+  return(cdcp.regression.simple(data, model, index_val, boot, index_val_sub, u, boot_type, cores = 4))
 }
 
 
@@ -393,6 +396,109 @@ cdcp.regression.plot <- function(cd, half_correction = TRUE) {
   matplot(x = cd$index_val, y = plot_cd_set, pch = 21, col = "black", bg = "grey70", xlab = "", ylab = "")
   title(ylab = "Confidence Sets", xlab = "index", line = 2.5)
 }
+
+
+
+
+cdcp.regression.test <- function() {
+  
+
+  set.seed(441)
+  
+  country_names <- c("Mirasius", "Oras", "Anglinthius", "Olvion")
+  country_names <- sort(country_names)
+  
+  
+  year_min <- 1900
+  year_max <- 2000
+  year_seq <- year_min:year_max
+  
+  n           <- length(year_seq)
+  m           <- length(country_names)
+  
+  beta_L      <- 0.35
+  beta_R      <- 0.42
+  
+  tau_0       <- 1950
+  gamma_0     <- 1
+  
+  u           <- rep(year_seq, times = m)/year_max
+  mu          <- rep(beta_L + (beta_R - beta_L)*(year_seq > tau_0), times = m) + gamma_0*u
+  sigma       <- 0.1
+  
+  y           <- mu + sigma*rnorm(n*m)
+  X           <- as.matrix(1 + mu*0)
+  Z           <- as.matrix(u)
+  
+  index       <- rep(year_seq, times = m)
+  group       <- rep(country_names, each = n)
+  country     <- rep(country_names, each = n)
+  id          <- rep(1:m, each = n)
+  
+  index_val   <- 1910:1990
+  
+  # Data 
+  data <- cdcp.regression.data(y = y, X = X, Z = Z, index = index, group = group, index_dummy = FALSE, group_dummy = FALSE, lag = FALSE)
+  
+  # Monitoring Bridge 
+  bridge <- cdcp.regression.bridge(data = data, index_val = index_val)
+  cdcp.regression.bridge.plot(bridge)
+  
+  test <- (sum(abs(bridge$bbridge), na.rm = TRUE) - 37.74121)
+  
+  # Estimation 
+  model <- cdcp.regression.estimate(data = data, index_val = index_val)
+  
+  # Test:
+  para <- c(model$betaL, model$betaR, model$sigma, tau)
+  test <- test + sum(abs(para - c(0.1867618, 0.2580980, 0.1007678, 1950.0000000)))
+  
+  
+  # CD for Change Point 
+  cd_gaussian <- cdcp.regression(data = data, model = model, index_val = index_val, boot = 100, boot_type = "gaussian")
+  cd_independent <- cdcp.regression(data = data, model = model, index_val = index_val, boot = 100, boot_type = "independent")
+  cd_group <- cdcp.regression(data = data, model = model, index_val = index_val, boot = 100, boot_type = "group")
+
+  par(mfrow = c(1, 3))
+  cdcp.regression.plot(cd_gaussian)
+  cdcp.regression.plot(cd_independent)
+  cdcp.regression.plot(cd_group)
+  
+  # Test: 
+  test <- test + abs(sum(cd_gaussian$cd_set, na.rm = TRUE) - 191.4343)
+  test <- test + abs(sum(cd_independent$cd_set, na.rm = TRUE) - 182.4545)
+  test <- test + abs(sum(cd_group$cd_set, na.rm = TRUE) - 184.6667)
+  
+
+  # DoC
+  doc <- cdcp.regression.beta.doc(data, model, k = 1, delta_val = seq(-0.2, 0.2, length.out = 100), index_val = index_val, boot = 0)
+  doc_gaussian <- cdcp.regression.beta.doc(data, model, k = 1, delta_val = seq(-0.2, 0.2, length.out = 100), index_val = index_val, boot = 100, boot_type = "gaussian")
+  doc_independent <- cdcp.regression.beta.doc(data, model, k = 1, delta_val = seq(-0.2, 0.2, length.out = 100), index_val = index_val, boot = 100, boot_type = "independent")
+  doc_group <- cdcp.regression.beta.doc(data, model, k = 1, delta_val = seq(-0.2, 0.2, length.out = 100), index_val = index_val, boot = 100, boot_type = "group")
+  
+  par(mfrow = c(1, 4))
+  cdcp.regression.beta.doc.plot(doc)
+  cdcp.regression.beta.doc.plot(doc_gaussian, approx = FALSE)
+  cdcp.regression.beta.doc.plot(doc_independent, approx = FALSE)
+  cdcp.regression.beta.doc.plot(doc_group, approx = FALSE)
+  
+  test <- test + (sum(doc$cc_approx, na.rm = TRUE) - 91.93897)
+  test <- test + (sum(doc_gaussian$cc, na.rm = TRUE) - 91.46)
+  test <- test + (sum(doc_independent$cc, na.rm = TRUE) - 90.64)
+  test <- test + (sum(doc_group$cc, na.rm = TRUE) - 91.49)
+  
+  if (test < 1e-3) {
+    cat("Test: Ok.\n")
+  }
+  
+}
+
+
+
+cdcp.regression.test()
+
+
+
 
 
 
