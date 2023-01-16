@@ -3,10 +3,19 @@ Confidence Distribution for Change Points for Panel Regression
 
 # Introduction and Summary 
 
+This package contain the main methods used in ??? for change point analysis in panel regression models. 
+
+
+# Note
+
+This package is still under development, and must therefore be used with a bit of caution and is not guaranteed to be completely error-free. The bootstrap routine used to compute the confidence sets for the change point, and the non-approximation confidence curve for the so-called degree of change is quite computer intensive. To reduce the computational complexity, it is advised to do an initial search for reasonable values of `index_val_sub` and `delta_val` with a low number of bootstrap samples before increasing this to 100-1000 samples. 
+ 
+
+
 # Installation 
-To install the `CDCPRegression` package, install the packages below and run the following set of commands in R: 
+To install the `CDCPRegression` package, install `devtools`, `data.table`, `foreach` and `doMC` below and run the following set of commands in R: 
 ```
-library(dev.tools)
+library(devtools)
 library(data.table)
 library(foreach)
 library(doMC)
