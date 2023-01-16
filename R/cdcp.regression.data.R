@@ -685,6 +685,9 @@ cdcp.regression.data.test <- function() {
 
 
   data <- cdcp.regression.data(y = y, X = X, Z = Z, index = index, group = group, index_dummy = FALSE, group_dummy = FALSE, lag = FALSE)
+  
+  # This should run all the other functions also, can also select some values for testing. 
+  
 }
 
 
