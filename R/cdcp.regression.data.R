@@ -1,7 +1,7 @@
-# Title: Confidence Distribution for Change Point for Panel Regression - Data
+# Title: CDCPRegression - Data
 #
-# Summary: Collection of functions to pre-porcess data for the CDCPRegression package. The is needed  
-# to esure a structrued format and to efficiently and correctly hangle dummy variables. 
+# Summary: Collection of functions to pre-process data for the CDCPRegression package. This is needed  
+# to sure a structured format for efficiently and correctly computations. 
 #
 # TODO:
 # 1) Write test. 
@@ -361,14 +361,14 @@ cdcp.regression.data.check <- function(y, X, Z, index, group, D) {
 #' Find Suggested Indexes for a Change Point
 #'
 #' For a model specified by the `cdcp.regression.data(...)` function, it finds a set of suggested 
-#' locations for a change point that ensures that that number of data points per estimated parameter is 
+#' locations for a change point that ensures a given number of data points per estimated parameter is 
 #' at least `threshold` to the left and right of each potential change point. This function is most useful 
 #' for large panel data with several dummy variables.
 #'
 #' @param data output from the `cdcp.regression.data(...)` function.
 #' @param threshold minimum number of data points per estimated parameter.
 #' @param index_dummy if dummy variables are used in the model, set `index_dummy = TRUE` since this adds additional 
-#' constraints to the  number of data points; see `cdcp.regression.data` for some additional details.
+#' constraints to the number of data points; see `cdcp.regression.data` for some additional details.
 #' @return A list containing the suggested change points and the number of data points per parameter 
 #' on each side of the change point: 
 #' \describe{
@@ -387,7 +387,7 @@ cdcp.regression.data.check <- function(y, X, Z, index, group, D) {
 #' data <- cdcp.regression.data(y = y, X = X, index = x, group = rep(1, n))
 #' index_val <- cdcp.regression.data.find.index.val(data)$index_val
 #' 
-#' # Example 2: Simulation 
+#' # Example 2: Simulated Data 
 #' data <- cdcp.regression.data.sim()$data
 #' index_val <- cdcp.regression.data.find.index.val(data)$index_val
 #'
@@ -452,63 +452,47 @@ cdcp.regression.data.find.index.val <- function(data, index_dummy = FALSE, thres
 
 }
 
-#' Pre-process Data for the CDCP Panel Regression Package
+#' Pre-process Data for the CDCPRegression Package
 #'
 #' This function pre-process and creates a structured set of data to be used with the various functions in the CDCPRegression
-#' package. The model must be within the class \eqn{y_{i, j} = x_{i, j}^{\rm t} \beta_{\rm L} + x_{i, j}^{\rm t} (\beta_{\rm R} - \beta_{\rm L}) I(t_i < \delta) + \gamma Z_{i ,j} + \alpha D_{i, j} + y_{i - 1, j} + \epsilon_{i, j}} ... 
+#' package. The model must be within the class \eqn{y_{i, j} = x_{i, j}^{\rm t} \beta_{\rm L} + x_{i, j}^{\rm t} (\beta_{\rm R} - \beta_{\rm L}) I(t_i < \delta) + \gamma Z_{i ,j} + \alpha D_{i, j} + y_{i - 1, j} + \epsilon_{i, j}}; see Hermansen (2021) for more details.
 #'
 #' @param y the response variable, a \eqn{(n*m)} numeric vector, where \eqn{m} is the number of individuals and \eqn{n} is the number of observations per individual.
-#' @param X a numeric covariate matrix of size \eqn{(n*m) \times p}. Note that categorical variables must be converted to dummy variables. The algorithm will look for a common change point for a index (e.g. time) in X.
-#' @param Z protected covariates, i.e. covariates we believe are constant and does not experience a change point. 
+#' @param X a numeric covariate matrix of size \eqn{(n*m) \times p}. The matrix X repent the part of the model specification we believe is affected by a change point. 
+#' @param Z protected covariates, i.e. covariates we believe are constant and are not affected by the change point. 
 #' @param D protected categorical covariates.
 #' @param index a \eqn{(n*m)}-vector of indexes, e.g. time or year, such that index = 1 represent the first observation for each individual in the panel.
 #' @param group a vector of length \eqn{(n*m)} representing a potential group structure in the data. If all observations belong to the same group, this should be a \eqn{(n*m)}-vector with the value 1.
-#' @param index_dummy set `index_dummy = TRUE` to incude a categorical variable for each index (e.g. a year dummy) in the model.
+#' @param index_dummy set `index_dummy = TRUE` to include a categorical variable for each index (e.g. year dummy) in the model.
 #' @param group_dummy set `group_dummy = TRUE` to include a categorical variable for each group. 
 #' @param lag set `lag = TRUE` to add the lagged response \eqn{y_{i - 1}} to the model.
-#' @return A list of vector and matrices for input into various functions in the CDCP Panel Regression Package. 
+#' @return A list of data used as input to the various functions in the CDCPRegression Package. 
 #' @references Hermansen, G., Knutsen, Carl Henrik & Nygaard, Haavard Mokleiv. (2021). Characterizing and assessing temporal heterogeneity: Introducing a change point framework, with applications on the study of democratization, Political Analysis, 29, 485-504
 #' @references Cunen, C., Hermansen, G., & Hjort, N. L. (2018). Confidence distributions for change-points and regime shifts. Journal of Statistical Planning and Inference, 195, 14-34.
 #' @examples
-#' 
-#' # Example 1: One individual 
-#' n <- 100
+#' # Example 1: Simple Illustration with one Individual 
 #' 
 #' index <- 1:n
 #' group <- rep(1, n)
-#' mu <- 3*(index <= 50) 
 #'  
 #' X <- matrix(1, nrow = n, ncol = 1)
-#' y <- mu + rnorm(n)
-#' 
-#' plot(index, y)
-#' lines(index, mu, type = 's')
+#' y <- 1.5*(index <= 50) + rnorm(n)
 #' 
 #' data <- cdcp.regression.data(y = y, X = X, index = index, group = group)
-#'
-#' index_val <- cdcp.regression.data.find.index.val(data)$index_val
-#' # Monitoring 
-#' bridge <- cdcp.regression.bridge(data, index_val)
-#' cdcp.regression.bridge.plot(bridge)
 #' 
-#' # Example 2: One individual and lagged response 
 #'
-#' #' n <- 100
-#' x <- 1:n
-#' X <- cbind(1, x)
-#' y <- 3*(x <= 50) + rnorm(n)
-#' data <- cdcp.regression.data(y = y, X = X, index = x, group = rep(1, n), lag = TRUE)
+#' # Example 2: Simple Illustration with m Individuals 
 #' 
-#' # Example 3: One individual with a protected variable
-#'
-#' # Example 4: One individual and protected categorical variable  
+#' m <- 2
+#' n <- 100 
 #' 
-#' # Example 5: Two individuals
-#'
-#' # Example 6: Three individuals with individual one and two in the same group  
+#' index <- rep(1:n, times = m)
+#' group <- rep(1:m, each = n)
 #' 
-#' # Example 7: Ten individuals with index dummy 
-#'  
+#' X <- matrix(1, nrow = n*m)
+#' y <- 1.5*(index <= 50) + rnorm(n = m*n)
+#' 
+#' data <- cdcp.regression.data(y = y, X = X, index = index, group = group)
 #' @export
 #' @import data.table
 cdcp.regression.data <- function(y, X, Z = NULL, D = NULL, index, group, index_dummy = FALSE, group_dummy = FALSE, lag = FALSE) {
@@ -600,17 +584,16 @@ cdcp.regression.data <- function(y, X, Z = NULL, D = NULL, index, group, index_d
 }
 
 
-#' Simulate Data for the Confidence Distribution for Change Point for Regression Package.
+#' Simulate Test Data for the CDCPRegression Package
 #' 
 #' Simulate data from the model \eqn{y_{i, j} = \beta_{\rm L} + (\beta_{\rm R} - \beta_{\rm L}) I(t_i > 1950) + \gamma z_i + \epsilon_{i, j}}, for  
 #' \eqn{t_i = 1900, \ldots , 2000}, \eqn{z_i = i/n}, \eqn{j = 1, \ldots m}, \eqn{n = 100} and \eqn{m = 4}, and with independent \eqn{\epsilon_{i, j} \sim {\rm N}(0, \sigma^2)}. The simulated data set is then aggregate this using `cdcp.regression.data(...)` function to create a toy data 
-#' set that can be used to test the functionality of the confidence distribution for change point 
-#' for regression package. 
+#' set that can be used to test the functionality of the CDCPRegression package. 
 #' 
 #' @param seed a seed for the random number generator. 
 #' @param beta the intercept to the left and right of the change point.    
-#' @param sigma the standard deviation used for simulating data.
-#' @return Output from `cdcp.regression.data(...)` with the simulated data. 
+#' @param sigma the standard deviation used in simulating data.
+#' @return Output of `cdcp.regression.data(...)` for the simulated data. 
 #' @references Hermansen, G., Knutsen, Carl Henrik & Nygaard, Haavard Mokleiv. (2021). Characterizing and assessing temporal heterogeneity: Introducing a change point framework, with applications on the study of democratization, Political Analysis, 29, 485-504
 #' @references Cunen, C., Hermansen, G., & Hjort, N. L. (2018). Confidence distributions for change-points and regime shifts. Journal of Statistical Planning and Inference, 195, 14-34.
 #' @examples

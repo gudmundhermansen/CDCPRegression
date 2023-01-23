@@ -1,8 +1,6 @@
-# Title: Confidence Distribution for Change Point for Panel Regression - Estimation 
+# Title: CDCPRegression - Estimation 
 #
-# Summary: The main functions used for estimation of parameters for the CDCPRegression package. Some 
-# clever tricks are needed to make the estimation efficient for large-ish data and high number of 
-# parameters. 
+# Summary: The main function for estimation of parameters for the CDCPRegression package.
 #
 # TODO:
 # 1) Tests.
@@ -17,7 +15,6 @@ cdcp.regression.estimate.check.model <- function(model) {
     stop("ERROR: model is not a proper cdcp regression model \n")
   }
 }
-
 
 cdcp.regression.estimate.function <- function(data, index_val = NULL) {
 
@@ -146,16 +143,13 @@ cdcp.regression.estimate.function <- function(data, index_val = NULL) {
 
 }
 
-#' Estimate Parameters for the Panel Regression Model for Change Point
+#' Estimate Parameters for the CDCPRegression Package
 #'
-#' This function estimate the parameters, including the location of the change point,
-#' for the model specified by `cdcp.regression.data(...)`.
+#' This function estimate the parameters, including the location of the change point, for the model specified by `cdcp.regression.data(...)`.
 #'
-#' @param data output list of data from `cdcp.regression.data(...)`.
-#' @param index_val vector of indexes for the locations for a potential change points. 
-#' @return A list of estimated parameters, the maximised log-likelihood, aic, deviance and residuales.
-#' A list of estimated parameters, the maximised log-likelihood, aic, deviance and residuales...
-#' An object from cdcp.regression.estimation(...) is a list containing the following components:
+#' @param data the output from the `cdcp.regression.data(...)` function.
+#' @param index_val vector of indexes representing potential locations for a change point. 
+#' @return A list of estimated parameters and related numbers:
 #' \describe{
 #'   \item{ln_max}{maximised log-likelihood for each potential split in index_val}
 #'   \item{aic}{Akaike Information Criterion (AIC) for each potential split in index_val}
@@ -180,7 +174,6 @@ cdcp.regression.estimate.function <- function(data, index_val = NULL) {
 #' @references Hermansen, G., Knutsen, Carl Henrik & Nygaard, Haavard Mokleiv. (2021). Characterizing and assessing temporal heterogeneity: Introducing a change point framework, with applications on the study of democratization, Political Analysis, 29, 485-504
 #' @references Cunen, C., Hermansen, G., & Hjort, N. L. (2018). Confidence distributions for change-points and regime shifts. Journal of Statistical Planning and Inference, 195, 14-34.
 #' @examples
-#' 
 #' # Example 1: One individual 
 #' n <- 100
 #' x <- 1:n
@@ -190,7 +183,7 @@ cdcp.regression.estimate.function <- function(data, index_val = NULL) {
 #' index_val <- cdcp.regression.data.find.index.val(data)$index_val
 #' fit <- cdcp.regression.estimate(data, index_val)
 #' 
-#' # Example 2: 
+#' # Example 2: Simulated Data
 #' data <- cdcp.regression.data.sim()$data
 #' index_val <- cdcp.regression.data.find.index.val(data)$index_val
 #' fit <- cdcp.regression.estimate(data, index_val)
@@ -439,7 +432,6 @@ cdcd.panel.estimation.test <- function() {
 
 }
 
-# cdcd.pannel.estimation.test()
 
 
 

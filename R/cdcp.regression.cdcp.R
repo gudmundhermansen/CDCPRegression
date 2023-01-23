@@ -1,9 +1,9 @@
-# Title: Confidence Sets for the Change Point
+# Title: CDCPRegression - Confidence Sets for Location of the Change Point
 #
-# Summary:
+# Summary: Functions to compute and plot the confidence sets for the location of a change point. 
 #
 # TODO:
-#
+
 cdcp.regression.simple <- function(data, model, index_val, boot = 100, index_val_sub = NULL, u = seq(0, 1, length.out = 100), boot_type = c("gaussian", "independent", "group"), cores = 4) {
   return(cdcp.regression.simple.function(data = data, model = model, index_val = index_val, boot = boot, index_val_sub = index_val_sub, u = u, boot_type = boot_type, cores = cores))
 }
@@ -290,34 +290,29 @@ cdcp.regression.check <- function(cd) {
   
 }
 
-
-
-
-#' Confidence Sets for the Location of a Change Point for Panel Regression
+#' Confidence Sets for the Location of a Change Point
 #'
-#' This function computes the confidence distribution, using bootstrapping, for the location of a 
-#' change point for panel regression data.  
+#' This function computes the confidence sets, using bootstrapping, for the location of a change point; see Hermansen (2021) for details. 
 #'
-#' @param data a list of data that specify the structure of the model, it must be created by the `cdcp.regression.data(...)` function.
-#' @param model the output of `cdcp.regression.estimation(...)` (list of estimated model paramters from).
-#' @param index_val a consecutive sequence of indexes representing all potential locations for a change point.
+#' @param data the output from the `cdcp.regression.data(...)` function.
+#' @param model the output of the `cdcp.regression.estimation(...)` function.
+#' @param index_val vector of indexes representing potential locations for a change point. 
 #' @param boot the number of bootstrap samples.
-#' @param index_val_sub a subset of `index_val` that can be used to speed up calculations if we now the approximate location of the change point.
+#' @param index_val_sub a subset of `index_val` that can be used to speed up calculations if the approximate location of the change point is known.
 #' @param u the resolution used to compute the confidence sets (a sequence of numbers between 0 and 1). 
 #' @param boot_type the method used to sample residuals for the bootstrap: `gaussian` use use parametric 
 #' bootstrap under the assumption of a Gaussian model, `independent` makes independent draws from the 
-#' estimated residuals and `group` use the assumed group structure to draw independent residuales. 
+#' estimated residuals and `group` use the assumed group structure to draw independent residuals. 
 #' @return A list containing the following:
 #' \describe{
-#'   \item{cc_set}{A matrix representation of the confidense set for all levels u and index_val.}
-#'   \item{cc_set_half}{Same as above but with half correction. }
-#'   \item{index_val}{same as index_val argument}
-#'   \item{u}{same as u argument}
+#'   \item{cc_set}{a matrix representation of the confidense set for all levels u and index_val.}
+#'   \item{cc_set_half}{same as above but with half correction.}
+#'   \item{index_val}{same as `index_val` argument}
+#'   \item{u}{same as `u` argument}
 #' }
 #' @references Hermansen, G., Knutsen, Carl Henrik & Nygaard, Haavard Mokleiv. (2021). Characterizing and assessing temporal heterogeneity: Introducing a change point framework, with applications on the study of democratization, Political Analysis, 29, 485-504
 #' @references Cunen, C., Hermansen, G., & Hjort, N. L. (2018). Confidence distributions for change-points and regime shifts. Journal of Statistical Planning and Inference, 195, 14-34.
 #' @examples
-#' # Example 1: 
 #' data <- cdcp.regression.data.sim()
 #' model <- cdcp.regression.estimate(data$data, data$index_val)
 #' cd <- cdcp.regression(data$data, model, data$index_val)
@@ -360,21 +355,16 @@ cdcp.regression <- function(data, model, index_val, boot = 100, index_val_sub = 
 }
 
 
-
-
-
-#' Plot of Confidence Sets for the Location of a Change Point for Panel Regression
+#' Plot of Confidence Sets for the Location of a Change Point
 #'
-#' Plot the confidence sets for the location of a change point for panel regression. Note that the 
-#' plotting function is quite minimal, however, it should be easy to modify this function (or make a 
-#' new) to individual needs.
+#' Plot the confidence sets for the location of a change point for panel regression. The 
+#' plotting function is quite minimal, however, it should be easy to modify this to individual needs.
 #'
-#' @param cdcp The output of `cdcp.regression(...)`.
-#' @param half_correction If `TRUE` the confidence sets are plotted with half correction.
+#' @param cdcp the output of the `cdcp.regression(...)` function.
+#' @param half_correction if `TRUE` the confidence sets are plotted with half correction.
 #' @references Hermansen, G., Knutsen, Carl Henrik & Nygaard, Haavard Mokleiv. (2021). Characterizing and assessing temporal heterogeneity: Introducing a change point framework, with applications on the study of democratization, Political Analysis, 29, 485-504
 #' @references Cunen, C., Hermansen, G., & Hjort, N. L. (2018). Confidence distributions for change-points and regime shifts. Journal of Statistical Planning and Inference, 195, 14-34.
 #' @examples
-#' # Example 1: 
 #' data <- cdcp.regression.data.sim()
 #' model <- cdcp.regression.estimate(data$data, data$index_val)
 #' cd <- cdcp.regression(data$data, model, data$index_val)
