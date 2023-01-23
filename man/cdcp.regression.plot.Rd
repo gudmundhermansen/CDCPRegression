@@ -2,22 +2,20 @@
 % Please edit documentation in R/cdcp.regression.cdcp.R
 \name{cdcp.regression.plot}
 \alias{cdcp.regression.plot}
-\title{Plot of Confidence Sets for the Location of a Change Point for Panel Regression}
+\title{Plot of Confidence Sets for the Location of a Change Point}
 \usage{
 cdcp.regression.plot(cd, half_correction = TRUE)
 }
 \arguments{
-\item{half_correction}{If \code{TRUE} the confidence sets are plotted with half correction.}
+\item{half_correction}{if \code{TRUE} the confidence sets are plotted with half correction.}
 
-\item{cdcp}{The output of \code{cdcp.regression(...)}.}
+\item{cdcp}{the output of the \code{cdcp.regression(...)} function.}
 }
 \description{
-Plot the confidence sets for the location of a change point for panel regression. Note that the
-plotting function is quite minimal, however, it should be easy to modify this function (or make a
-new) to individual needs.
+Plot the confidence sets for the location of a change point for panel regression. The
+plotting function is quite minimal, however, it should be easy to modify this to individual needs.
 }
 \examples{
-# Example 1: 
 data <- cdcp.regression.data.sim()
 model <- cdcp.regression.estimate(data$data, data$index_val)
 cd <- cdcp.regression(data$data, model, data$index_val)

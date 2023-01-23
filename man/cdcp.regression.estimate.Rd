@@ -2,19 +2,17 @@
 % Please edit documentation in R/cdcp.regression.estimation.R
 \name{cdcp.regression.estimate}
 \alias{cdcp.regression.estimate}
-\title{Estimating parameters for the Panale Regression Model with a Change Point}
+\title{Estimate Parameters for the CDCPRegression Package}
 \usage{
 cdcp.regression.estimate(data, index_val)
 }
 \arguments{
-\item{data}{output list of data from \code{cdcp.regression.data(...)}.}
+\item{data}{the output from the \code{cdcp.regression.data(...)} function.}
 
-\item{index_val}{vector of indexes for the locations for a potential change points.}
+\item{index_val}{vector of indexes representing potential locations for a change point.}
 }
 \value{
-A list of estimated parameters, the maximised log-likelihood, aic, deviance and residuales.
-A list of estimated parameters, the maximised log-likelihood, aic, deviance and residuales...
-An object from cdcp.regression.estimation(...) is a list containing the following components:
+A list of estimated parameters and related numbers:
 \describe{
 \item{ln_max}{maximised log-likelihood for each potential split in index_val}
 \item{aic}{Akaike Information Criterion (AIC) for each potential split in index_val}
@@ -37,11 +35,9 @@ An object from cdcp.regression.estimation(...) is a list containing the followin
 }
 }
 \description{
-This function estimate the parameters, including the location of the change point,
-for the model specified by \code{cdcp.regression.data(...)}.
+This function estimate the parameters, including the location of the change point, for the model specified by \code{cdcp.regression.data(...)}.
 }
 \examples{
-
 # Example 1: One individual 
 n <- 100
 x <- 1:n
@@ -51,7 +47,7 @@ data <- cdcp.regression.data(y = y, X = X, index = x, group = rep(1, n))
 index_val <- cdcp.regression.data.find.index.val(data)$index_val
 fit <- cdcp.regression.estimate(data, index_val)
 
-# Example 2: 
+# Example 2: Simulated Data
 data <- cdcp.regression.data.sim()$data
 index_val <- cdcp.regression.data.find.index.val(data)$index_val
 fit <- cdcp.regression.estimate(data, index_val)

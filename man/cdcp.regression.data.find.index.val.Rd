@@ -10,7 +10,7 @@ cdcp.regression.data.find.index.val(data, index_dummy = FALSE, threshold = 10)
 \item{data}{output from the \code{cdcp.regression.data(...)} function.}
 
 \item{index_dummy}{if dummy variables are used in the model, set \code{index_dummy = TRUE} since this adds additional
-constraints to the  number of data points; see \code{cdcp.regression.data} for some additional details.}
+constraints to the number of data points; see \code{cdcp.regression.data} for some additional details.}
 
 \item{threshold}{minimum number of data points per estimated parameter.}
 }
@@ -25,7 +25,7 @@ on each side of the change point:
 }
 \description{
 For a model specified by the \code{cdcp.regression.data(...)} function, it finds a set of suggested
-locations for a change point that ensures that that number of data points per estimated parameter is
+locations for a change point that ensures a given number of data points per estimated parameter is
 at least \code{threshold} to the left and right of each potential change point. This function is most useful
 for large panel data with several dummy variables.
 }
@@ -38,7 +38,7 @@ y <- 3*(x <= 50) + rnorm(n)
 data <- cdcp.regression.data(y = y, X = X, index = x, group = rep(1, n))
 index_val <- cdcp.regression.data.find.index.val(data)$index_val
 
-# Example 2: Simulation 
+# Example 2: Simulated Data 
 data <- cdcp.regression.data.sim()$data
 index_val <- cdcp.regression.data.find.index.val(data)$index_val
 

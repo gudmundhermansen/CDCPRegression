@@ -2,22 +2,23 @@
 % Please edit documentation in R/cdcp.regression.doc.R
 \name{cdcp.regression.beta.doc}
 \alias{cdcp.regression.beta.doc}
-\title{Confidence Curve for the Degree of Change for Panel Regression}
+\title{Confidence Curve for the Degree of Change}
 \usage{
 cdcp.regression.beta.doc(
   data,
   model,
+  index_val,
   k,
   delta_val,
-  index_val,
   boot = 0,
-  boot_type = c("gaussian", "independent", "group")
+  boot_type = c("gaussian", "independent", "group"),
+  cores = 4
 )
 }
 \arguments{
-\item{data}{a list of data that specify the structure of the model, it must be created by the \code{cdcp.regression.data(...)} function.}
+\item{data}{the output from the \code{cdcp.regression.data(...)} function.}
 
-\item{model}{the output of \code{cdcp.regression.estimation(...)} (list of estimated model paramters from).}
+\item{model}{the output of the \code{cdcp.regression.estimation(...)} function.}
 
 \item{k}{the index of the \eqn{\beta} to compute the confidence curve for the degree of change, e.g. \code{k = 1} computes the confidence curve for the degree of change for the intercept (i.e. \eqn{\beta_0}).}
 
@@ -27,23 +28,23 @@ cdcp.regression.beta.doc(
 
 \item{boot_type}{boot_type The method used to sample residuals for the bootstrap: \code{gaussian} use use parametric
 bootstrap under the assumption of a Gaussian model, \code{independent} makes independent draws from the
-estimated residuals and \code{group} use the assumed group structure to draw independent residuales.}
+estimated residuals and \code{group} use the assumed group structure to draw independent residuals.}
 }
 \value{
 A list containing the following:
 \describe{
-\item{cc}{First item}
+\item{cc}{the confidence curve computed for all values of delta_val}
 \item{cc_approx}{the approximative confidence curve computed for all values of delta_val}
 \item{Dn}{the deviance for all value of delta_val}
 \item{ln_profile}{the maximised profile log-likelihood for all delta_val}
-\item{delta_val}{delta_val}
+\item{delta_val}{same as \code{delta_val} argument}
 \item{Kn}{the empirical cdf of the deviance evaluated at the observed deviance}
 }
 }
 \description{
 This function compute the confidence curve for the so-called degree of change for one important
-\eqn{\beta} coefficients in the model, see \code{cdcp.regression.data(...)} for the model specification.
-Note that the full bootstrap approximation is quite computer intensive, it is therefore recommended
+\eqn{\beta_k} coefficients in the model. The degree of change for \eqn{\beta_k} is defined as \eqn{\delta_k = \beta_{k, {\rm Left}} - \beta_{k, {\rm Right}}}; see Hermansen (2021) for details.
+Note that the full bootstrap computation is quite computer intensive, it is therefore recommended
 to run \code{boot = 0} first and then use \code{boot = 1000} on a coarse set to either verify or compute the
 full confidence curve on a subset of values in \code{delta_val}.
 }

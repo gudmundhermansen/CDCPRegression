@@ -2,7 +2,7 @@
 % Please edit documentation in R/cdcp.regression.cdcp.R
 \name{cdcp.regression}
 \alias{cdcp.regression}
-\title{Confidence Sets for the Location of a Change Point for Panel Regression}
+\title{Confidence Sets for the Location of a Change Point}
 \usage{
 cdcp.regression(
   data,
@@ -11,41 +11,40 @@ cdcp.regression(
   boot = 100,
   index_val_sub = NULL,
   u = seq(0, 1, length.out = 100),
-  boot_type = c("gaussian", "independent", "group")
+  boot_type = c("gaussian", "independent", "group"),
+  cores = 4
 )
 }
 \arguments{
-\item{data}{a list of data that specify the structure of the model, it must be created by the \code{cdcp.regression.data(...)} function.}
+\item{data}{the output from the \code{cdcp.regression.data(...)} function.}
 
-\item{model}{the output of \code{cdcp.regression.estimation(...)} (list of estimated model paramters from).}
+\item{model}{the output of the \code{cdcp.regression.estimation(...)} function.}
 
-\item{index_val}{a consecutive sequence of indexes representing all potential locations for a change point.}
+\item{index_val}{vector of indexes representing potential locations for a change point.}
 
 \item{boot}{the number of bootstrap samples.}
 
-\item{index_val_sub}{a subset of \code{index_val} that can be used to speed up calculations if we now the approximate location of the change point.}
+\item{index_val_sub}{a subset of \code{index_val} that can be used to speed up calculations if the approximate location of the change point is known.}
 
 \item{u}{the resolution used to compute the confidence sets (a sequence of numbers between 0 and 1).}
 
 \item{boot_type}{the method used to sample residuals for the bootstrap: \code{gaussian} use use parametric
 bootstrap under the assumption of a Gaussian model, \code{independent} makes independent draws from the
-estimated residuals and \code{group} use the assumed group structure to draw independent residuales.}
+estimated residuals and \code{group} use the assumed group structure to draw independent residuals.}
 }
 \value{
 A list containing the following:
 \describe{
-\item{cc_set}{A matrix representation of the confidense set for all levels u and index_val.}
-\item{cc_set_half}{Same as above but with half correction. }
-\item{index_val}{same as index_val argument}
-\item{u}{same as u argument}
+\item{cc_set}{a matrix representation of the confidense set for all levels u and index_val.}
+\item{cc_set_half}{same as above but with half correction.}
+\item{index_val}{same as \code{index_val} argument}
+\item{u}{same as \code{u} argument}
 }
 }
 \description{
-This function computes the confidence distribution, using bootstrapping, for the location of a
-change point for panel regression data.
+This function computes the confidence sets, using bootstrapping, for the location of a change point; see Hermansen (2021) for details.
 }
 \examples{
-# Example 1: 
 data <- cdcp.regression.data.sim()
 model <- cdcp.regression.estimate(data$data, data$index_val)
 cd <- cdcp.regression(data$data, model, data$index_val)

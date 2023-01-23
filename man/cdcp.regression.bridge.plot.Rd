@@ -13,32 +13,12 @@ cdcp.regression.bridge.plot(bridge)
 Plot the so-called monitoring bridge using the output of the \code{cdcp.regression.bridge(...)} function.
 }
 \examples{
-
-Example 1:
 data <- cdcp.regression.data.sim()
 bridge <- cdcp.regression.bridge(data$data, data$index_val)
 cdcp.regression.bridge.plot(bridge)
-
-Example 2: A simple example 
-n <- 100
-x <- 1:n
-X <- cbind(1, x)
-mu <- 3*(x <= 50) + x
-y <- mu + rnorm(n)
-
-# plot of simulated data
-plot(x, y)
-lines(x, mu)
-
-# create list of data for CDCP Regression analysis 
-index <- x
-group <- x*0 + 1
-data <- cdcp.regression.data(y = y, X = X, index = index, group = group)
-
-# run monitoring bridge model and plot results
-bridge <- cdcp.regression.bridge(data, index_val = 10:90)
-cdcp.regression.bridge.plot(bridge)
 }
 \references{
+Hermansen, G., Knutsen, Carl Henrik & Nygaard, Haavard Mokleiv. (2021). Characterizing and assessing temporal heterogeneity: Introducing a change point framework, with applications on the study of democratization, Political Analysis, 29, 485-504
+
 Cunen, C., Hermansen, G., & Hjort, N. L. (2018). Confidence distributions for change-points and regime shifts. Journal of Statistical Planning and Inference, 195, 14-34.
 }

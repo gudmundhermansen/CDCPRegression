@@ -2,7 +2,7 @@
 % Please edit documentation in R/cdcp.regression.doc.R
 \name{cdcp.regression.beta.doc.plot}
 \alias{cdcp.regression.beta.doc.plot}
-\title{Plot Confidence Curve for the Degree of Change for Panel Regression}
+\title{Plot Confidence Curve for the Degree of Change}
 \usage{
 cdcp.regression.beta.doc.plot(cc, approx = TRUE)
 }
@@ -12,9 +12,8 @@ cdcp.regression.beta.doc.plot(cc, approx = TRUE)
 \item{approx}{should the approximation of the confidence curve be plotted (\code{approx = TRUE} will plot this).}
 }
 \description{
-Plot the confidence curve (cc) for the degree of change for a specific coffecients, see
-\code{cdcp.regression.beta.doc(...)} for details. The plotting function is quite minimal, however,
-it should be easy to modify this function (or make a new) to individual needs.
+Plot the confidence curve (cc) for the degree of change for a specific coefficient, see
+\code{cdcp.regression.beta.doc(...)} for details. The plotting function is quite minimal, however, it should be easy to modify this to individual needs.
 }
 \examples{
 # Example 1: 

@@ -4,8 +4,6 @@
 # to sure a structured format for efficiently and correctly computations. 
 #
 # TODO:
-# 1) Write test. 
-# 2) Allow for more undefined inputs, e.g. index_val
 
 cdcp.regression.data.add.dummy <- function(D) {
 
@@ -650,61 +648,6 @@ cdcp.regression.data.sim <- function(seed = 1, beta = c(0.30, 0.35), sigma = 0.1
   
   return(list(data = data, index_val = index_val))
 }
-
-
-
-
-
-
-
-
-cdcp.regression.data.test <- function() {
-  set.seed(441)
-
-  country_names <- c("Mirasius", "Oras", "Anglinthius", "Olvion")
-  country_names <- sort(country_names)
-
-
-  year_min <- 1900
-  year_max <- 2000
-  year_seq <- year_min:year_max
-
-
-  n           <- length(year_seq)
-  m           <- length(country_names)
-
-  beta_L      <- 0.35
-  beta_R      <- 0.45
-
-  tau_0       <- 1950
-  gamma_0     <- 1
-
-  u           <- rep(year_seq, times = m)/year_max
-  mu          <- rep(beta_L + (beta_R - beta_L)*(year_seq > tau_0), times = m) + gamma_0*u
-  sigma       <- 0.1
-
-  y           <- mu + sigma*rnorm(n*m)
-  X           <- as.matrix(1 + mu*0)
-  Z           <- as.matrix(u)
-
-  index       <- rep(year_seq, times = m)
-  group       <- rep(country_names, each = n)
-  country     <- rep(country_names, each = n)
-  id          <- rep(1:m, each = n)
-
-  index_val   <- 1910:1990
-
-
-  data <- cdcp.regression.data(y = y, X = X, Z = Z, index = index, group = group, index_dummy = FALSE, group_dummy = FALSE, lag = FALSE)
-  
-  # This should run all the other functions also, can also select some values for testing. 
-  
-}
-
-
-
-
-
 
 
 

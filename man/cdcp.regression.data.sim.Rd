@@ -2,7 +2,7 @@
 % Please edit documentation in R/cdcp.regression.data.R
 \name{cdcp.regression.data.sim}
 \alias{cdcp.regression.data.sim}
-\title{Simulate Data for the Confidence Distribution for Change Point for Regression Package.}
+\title{Simulate Test Data for the CDCPRegression Package}
 \usage{
 cdcp.regression.data.sim(seed = 1, beta = c(0.3, 0.35), sigma = 0.1)
 }
@@ -11,16 +11,15 @@ cdcp.regression.data.sim(seed = 1, beta = c(0.3, 0.35), sigma = 0.1)
 
 \item{beta}{the intercept to the left and right of the change point.}
 
-\item{sigma}{the standard deviation used for simulating data.}
+\item{sigma}{the standard deviation used in simulating data.}
 }
 \value{
-Output from \code{cdcp.regression.data(...)} with the simulated data.
+Output of \code{cdcp.regression.data(...)} for the simulated data.
 }
 \description{
 Simulate data from the model \eqn{y_{i, j} = \beta_{\rm L} + (\beta_{\rm R} - \beta_{\rm L}) I(t_i > 1950) + \gamma z_i + \epsilon_{i, j}}, for
 \eqn{t_i = 1900, \ldots , 2000}, \eqn{z_i = i/n}, \eqn{j = 1, \ldots m}, \eqn{n = 100} and \eqn{m = 4}, and with independent \eqn{\epsilon_{i, j} \sim {\rm N}(0, \sigma^2)}. The simulated data set is then aggregate this using \code{cdcp.regression.data(...)} function to create a toy data
-set that can be used to test the functionality of the confidence distribution for change point
-for regression package.
+set that can be used to test the functionality of the CDCPRegression package.
 }
 \examples{
 data <- cdcp.regression.data.sim()
