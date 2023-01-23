@@ -88,7 +88,7 @@ cdcp.regression.data.add.index.dummy.with.intercept <- function(index) {
   n     <- length(index)
   D_val <- sort(unique(index))
   m     <- length(D_val)
-  D     <- matrix(0, nrow = n, ncol = m - 2)
+  D     <- matrix(0, nrow = n, ncol = m - 1)
 
   # Note: Remove one dummy since there is a intercept in Z
 
@@ -249,7 +249,9 @@ cdcp.regression.data.function <- function(y, X, Z = NULL, D = NULL, index, group
     # of index dummies, similar if there is a intercept among the protected variables
 
     intercept_in_X <- any(apply(X, 2, function(x) {length(unique(x))}) == 1)
-    intercept_in_Z <- any(apply(X, 2, function(x) {length(unique(x))}) == 1)
+  
+    intercept_in_Z <- FALSE
+    try(intercept_in_Z <- any(apply(Z, 2, function(x) {length(unique(x))}) == 1), silent = TRUE)
 
     if (intercept_in_X & intercept_in_Z) {
       stop("ERROR: Intercept found among X and Z. Remove that column from either X or Z to avoid problems with identifiability with index dummies in the model.\n")
@@ -471,10 +473,23 @@ cdcp.regression.data.find.index.val <- function(data, index_dummy = FALSE, thres
 #' 
 #' # Example 1: One individual 
 #' n <- 100
-#' x <- 1:n
-#' X <- cbind(1, x)
-#' y <- 3*(x <= 50) + rnorm(n)
-#' data <- cdcp.regression.data(y = y, X = X, index = x, group = rep(1, n))
+#' 
+#' index <- 1:n
+#' group <- rep(1, n)
+#' mu <- 3*(index <= 50) 
+#'  
+#' X <- matrix(1, nrow = n, ncol = 1)
+#' y <- mu + rnorm(n)
+#' 
+#' plot(index, y)
+#' lines(index, mu, type = 's')
+#' 
+#' data <- cdcp.regression.data(y = y, X = X, index = index, group = group)
+#'
+#' index_val <- cdcp.regression.data.find.index.val(data)$index_val
+#' # Monitoring 
+#' bridge <- cdcp.regression.bridge(data, index_val)
+#' cdcp.regression.bridge.plot(bridge)
 #' 
 #' # Example 2: One individual and lagged response 
 #'
@@ -568,9 +583,16 @@ cdcp.regression.data <- function(y, X, Z = NULL, D = NULL, index, group, index_d
   # }
 
   # WARNINGS:
+  if (!is.null(D)) {
+    cat("WARNING: It is not recommended to have time related covariates in D and also in X or Z, at the same time.")
+    cat(" This can lead to numerical instability and problems of identifiability in the model. \n")
+  }
+  
+  
+  # WARNINGS:
   if (index_dummy) {
-    cat("WARNING: If X or Z contains time-dependent covariates, the use of index dummies are not recommended, since")
-    cat(" this can lead to numerical instability and problems with identifiability of the model. \n")
+    cat("WARNING: If X, Z or D contains time-dependent covariates, the use of index dummies are not recommended.")
+    cat(" This can lead to numerical instability and problems of identifiability in the model. \n")
   }
 
 

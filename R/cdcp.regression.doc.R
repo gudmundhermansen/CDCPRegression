@@ -265,7 +265,8 @@ cdcp.regression.beta.doc.check <- function(cc) {
 #' Confidence Curve for the Degree of Change for Panel Regression
 #'
 #' This function compute the confidence curve for the so-called degree of change for one important 
-#' \eqn{\beta} coefficients in the model, see `cdcp.regression.data(...)` for the model specification. 
+#' \eqn{\beta_k} coefficients in the model, see `cdcp.regression.data(...)` for the model specification. 
+#' The degree of change for \eqn{\beta_k} is defined as \eqn{\delta_k = \beta_{k, {\rm Left}} - \beta_{k, {\rm Right}}}.
 #' Note that the full bootstrap approximation is quite computer intensive, it is therefore recommended 
 #' to run `boot = 0` first and then use `boot = 1000` on a coarse set to either verify or compute the 
 #' full confidence curve on a subset of values in `delta_val`.

@@ -495,7 +495,7 @@ cdcp.regression.test <- function() {
 
 
 
-cdcp.regression.test()
+cdcp.regression.test
 
 
 
